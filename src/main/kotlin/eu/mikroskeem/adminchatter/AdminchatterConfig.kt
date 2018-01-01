@@ -88,7 +88,7 @@ class Messages {
     var adminChatToggleEnabled = "{plugin_prefix} &7Adminchat is now toggled &aon &7for you."
         private set
 
-    @Setting(value = "admin-chat-toggle-enabled", comment = "This message is shown when player toggles admin chat off")
+    @Setting(value = "admin-chat-toggle-disabled", comment = "This message is shown when player toggles admin chat off")
     var adminChatToggleDisabled = "{plugin_prefix} &7Adminchat is now toggled &coff &7for you."
         private set
 
