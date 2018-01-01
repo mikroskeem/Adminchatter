@@ -105,4 +105,8 @@ class Messages {
     @Setting(value = "plugin-configuration-is-reloaded", comment = "This message is shown when plugin configuration reloading succeeded")
     var pluginConfigurationReloaded = "{plugin_prefix} &aPlugin configuration is reloaded!"
         private set
+
+    @Setting(value = "must-supply-a-message", comment = "This message is shown when user tries to send empty adminchat message using command")
+    var mustSupplyAMessage = "{plugin_prefix} &cYou must supply a message!"
+        private set
 }

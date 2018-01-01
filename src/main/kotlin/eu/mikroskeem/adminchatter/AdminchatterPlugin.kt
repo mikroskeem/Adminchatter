@@ -26,6 +26,7 @@
 package eu.mikroskeem.adminchatter
 
 import net.md_5.bungee.api.plugin.Plugin
+import org.bstats.bungeecord.Metrics
 import java.nio.file.Paths
 
 /**
@@ -48,5 +49,9 @@ class AdminchatterPlugin: Plugin() {
         registerCommand(AdminchatToggleCommand::class)
         registerCommand(AdminchatterCommand::class)
         registerListener(ChatListener::class)
+
+        proxy.scheduler.runAsync(this) {
+            Metrics(this)
+        }
     }
 }

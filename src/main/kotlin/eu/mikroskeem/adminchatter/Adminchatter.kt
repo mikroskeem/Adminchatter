@@ -102,8 +102,10 @@ val adminchatTogglePlayers: MutableSet<ProxiedPlayer> = Collections.newSetFromMa
 // Broadcasts admin chat message
 internal fun sendAdminChat(sender: CommandSender, message: String) {
     // Do not process empty message
-    if(message.isEmpty())
+    if(message.isEmpty()) {
+        sender.passMessage(config.messages.mustSupplyAMessage)
         return
+    }
 
     val chatFormat = config.adminChatFormat.takeUnless { it.isEmpty() } ?: return // User did not set chat format, don't process anything
     val senderName = if(sender is ProxiedPlayer) sender.name else (config.consoleName.takeUnless { it.isEmpty() } ?: "CONSOLE")

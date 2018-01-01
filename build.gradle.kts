@@ -9,6 +9,7 @@ val gradleWrapperVersion: String by extra
 val kotlinVersion: String by extra
 val waterfallApiVersion: String by extra
 val configurateVersion: String by extra
+val bstatsVersion: String by extra
 
 repositories {
     mavenLocal()
@@ -18,6 +19,11 @@ repositories {
         name = "destroystokyo-repo"
         setUrl("https://repo.destroystokyo.com/repository/maven-public/")
     }
+
+    maven {
+        name = "bstats-repo"
+        setUrl("http://repo.bstats.org/content/repositories/releases/")
+    }
 }
 
 dependencies {
@@ -25,6 +31,7 @@ dependencies {
     implementation("ninja.leaping.configurate:configurate-hocon:$configurateVersion") {
         exclude(module = "guava")
     }
+    implementation("org.bstats:bstats-bungeecord:$bstatsVersion")
     compileOnly("io.github.waterfallmc:waterfall-api:$waterfallApiVersion")
 }
 
@@ -44,7 +51,8 @@ val shadowJar by tasks.getting(com.github.jengelman.gradle.plugins.shadow.tasks.
     val relocations = listOf(
             "kotlin",
             "com.typesafe.config",
-            "ninja.leaping.configurate"
+            "ninja.leaping.configurate",
+            "org.bstats"
     )
     val targetPackage = "eu.mikroskeem.adminchatter.lib"
 
