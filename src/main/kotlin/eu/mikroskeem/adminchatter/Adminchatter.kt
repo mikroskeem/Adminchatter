@@ -70,7 +70,7 @@ fun String.replacePlaceholders(playerName: String? = null,
             .replace("{message}", message ?: "")
             .replace("{colored_message}", message?.colored() ?: "")
             .replace("{server_name}", serverName ?: "")
-            .replace("{pretty_server_name}", serverName?.run(config.prettyServerNames::get)?.colored() ?: "")
+            .replace("{pretty_server_name}", serverName?.run(config.prettyServerNames::get)?.colored() ?: serverName ?: "")
 }
 
 fun CommandSender.passMessage(message: String) {
