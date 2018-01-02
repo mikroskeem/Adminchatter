@@ -48,8 +48,8 @@ class ConfigurationLoader<T: Any>(
         private val header: String? = null
 ) {
     /** This configuration loader's default options */
-    private val defaultOptions: ConfigurationOptions get() = ConfigurationOptions.defaults().apply {
-        this@ConfigurationLoader.header?.let { hdr -> this.header = hdr }
+    private val defaultOptions: ConfigurationOptions get() = ConfigurationOptions.defaults().let { opts ->
+        this@ConfigurationLoader.header?.let { hdr -> opts.setHeader(hdr) } ?: opts
     }
 
     /** Configuration file absolute location */
