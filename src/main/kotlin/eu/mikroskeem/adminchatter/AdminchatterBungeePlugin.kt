@@ -25,7 +25,12 @@
 
 package eu.mikroskeem.adminchatter
 
+import net.md_5.bungee.api.connection.ProxiedPlayer
+import net.md_5.bungee.api.event.ChatEvent
+import net.md_5.bungee.api.plugin.Listener
 import net.md_5.bungee.api.plugin.Plugin
+import net.md_5.bungee.event.EventHandler
+import net.md_5.bungee.event.EventPriority
 import org.bstats.bungeecord.Metrics
 import java.nio.file.Paths
 
@@ -53,5 +58,34 @@ class AdminchatterPlugin: Plugin() {
         proxy.scheduler.runAsync(this) {
             Metrics(this)
         }
+    }
+}
+
+class ChatListener: Listener {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun on(event: ChatEvent) {
+        val prefix = config.adminChatMessagePrefix.takeUnless { it.isEmpty() }
+        var hadPrefix = false
+        var message = event.message
+
+        if(event.isCancelled)
+            return
+
+        if(event.isCommand)
+            return
+
+        if(event.sender !is ProxiedPlayer)
+            return
+
+        if(prefix != null && message != prefix && message.startsWith(prefix)) {
+            message = message.substring(prefix.length)
+            hadPrefix = true
+        }
+
+        if(!hadPrefix && !adminchatTogglePlayers.contains(event.sender as ProxiedPlayer))
+            return
+
+        event.isCancelled = true
+        sendAdminChat(event.sender as ProxiedPlayer, message)
     }
 }
