@@ -55,8 +55,13 @@ fun <T: Listener> Plugin.registerListener(listenerClass: KClass<T>) {
     proxy.pluginManager.registerListener(this, listenerClass.java.getConstructor().newInstance())
 }
 
-fun <T: Command> Plugin.registerCommand(commandClass: KClass<T>) {
-    proxy.pluginManager.registerCommand(this, commandClass.java.getConstructor().newInstance())
+fun <T: Command> Plugin.registerCommand(command: T): T {
+    proxy.pluginManager.registerCommand(this, command)
+    return command
+}
+
+fun <T: Command> Plugin.registerCommand(commandClass: KClass<T>): T {
+    return registerCommand(commandClass.java.getConstructor().newInstance())
 }
 
 fun String.colored(): String = ChatColor.translateAlternateColorCodes('&', this)

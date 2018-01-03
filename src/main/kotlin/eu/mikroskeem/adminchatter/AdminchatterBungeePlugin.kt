@@ -32,6 +32,8 @@ import net.md_5.bungee.api.plugin.Plugin
 import net.md_5.bungee.event.EventHandler
 import net.md_5.bungee.event.EventPriority
 import org.bstats.bungeecord.Metrics
+import java.lang.ref.SoftReference
+import java.lang.ref.WeakReference
 import java.nio.file.Paths
 
 /**
@@ -43,6 +45,9 @@ class AdminchatterPlugin: Plugin() {
     lateinit var configLoader: ConfigurationLoader<Adminchatter>
         private set
 
+    private var acCommand: AdminchatCommand? = null
+    private var actCommand: AdminchatToggleCommand? = null
+
     override fun onEnable() {
         configLoader = ConfigurationLoader(
                 Paths.get(dataFolder.absolutePath, "config.cfg"),
@@ -50,13 +55,27 @@ class AdminchatterPlugin: Plugin() {
                 header = CONFIGURATION_FILE_HEADER
         )
 
-        registerCommand(AdminchatCommand::class)
-        registerCommand(AdminchatToggleCommand::class)
+        setupCommands()
         registerCommand(AdminchatterCommand::class)
         registerListener(ChatListener::class)
 
         proxy.scheduler.runAsync(this) {
             Metrics(this)
+        }
+    }
+
+    fun setupCommands() {
+        acCommand?.run(proxy.pluginManager::unregisterCommand)
+        actCommand?.run(proxy.pluginManager::unregisterCommand)
+        config.commands.run {
+            acCommand = registerCommand(AdminchatCommand(adminchatCommandName
+                    .takeUnless {it.isEmpty() } ?: "adminchat",
+                    adminchatCommandAliases.toTypedArray()
+            ))
+            actCommand = registerCommand(AdminchatToggleCommand(adminchatToggleCommandName
+                    .takeUnless { it.isEmpty() } ?: "adminchattoggle",
+                    adminchatToggleCommandAliases.toTypedArray()
+            ))
         }
     }
 }

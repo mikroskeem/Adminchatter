@@ -36,11 +36,12 @@ class AdminchatterCommand: Command("adminchatter", ADMINCHATTER_COMMAND_PERMISSI
     override fun execute(sender: CommandSender, args: Array<out String>) {
         plugin.configLoader.load()
         plugin.configLoader.save()
+        plugin.setupCommands()
         sender.passMessage(config.messages.pluginConfigurationReloaded)
     }
 }
 
-class AdminchatCommand: Command("adminchat", CHAT_PERMISSION, "ac") {
+class AdminchatCommand(commandName: String, aliases: Array<out String>): Command(commandName, CHAT_PERMISSION, *aliases) {
     override fun execute(sender: CommandSender, args: Array<out String>) {
         if(sender !is ProxiedPlayer && !config.allowConsoleUsage) {
             sender.passMessage(config.messages.adminChatIsOnlyForPlayers)
@@ -51,7 +52,7 @@ class AdminchatCommand: Command("adminchat", CHAT_PERMISSION, "ac") {
     }
 }
 
-class AdminchatToggleCommand: Command("adminchattoggle", CHAT_PERMISSION, "actoggle", "act") {
+class AdminchatToggleCommand(commandName: String, aliases: Array<out String>): Command(commandName, CHAT_PERMISSION, *aliases) {
     override fun execute(sender: CommandSender, args: Array<out String>) {
         if(sender !is ProxiedPlayer) {
             sender.passMessage(config.messages.adminChatTogglingIsOnlyForPlayers)

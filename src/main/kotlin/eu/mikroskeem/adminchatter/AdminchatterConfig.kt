@@ -76,6 +76,10 @@ class Adminchatter {
     @Setting(value = "messages", comment = "Plugin messages")
     var messages = Messages()
         private set
+
+    @Setting(value = "commands", comment = "Plugin commands")
+    var commands = Commands()
+        private set
 }
 
 @ConfigSerializable
@@ -108,5 +112,24 @@ class Messages {
 
     @Setting(value = "must-supply-a-message", comment = "This message is shown when user tries to send empty adminchat message using command")
     var mustSupplyAMessage = "{plugin_prefix} &cYou must supply a message!"
+        private set
+}
+
+@ConfigSerializable
+class Commands {
+    @Setting(value = "adminchat-command-name", comment = "What should be adminchat command name be (without slash)?")
+    var adminchatCommandName = "adminchat"
+        private set
+
+    @Setting(value = "adminchat-command-aliases", comment = "What should be adminchat command aliases be (without slashes)?")
+    var adminchatCommandAliases = listOf("ac")
+        private set
+
+    @Setting(value = "adminchat-toggle-command-name", comment = "What should be adminchat toggle command name be (without slash)?")
+    var adminchatToggleCommandName = "adminchattoggle"
+        private set
+
+    @Setting(value = "adminchat-toggle-command-aliases", comment = "What should be adminchat toggle command aliases be (without slashes)?")
+    var adminchatToggleCommandAliases = listOf("actoggle", "act")
         private set
 }
