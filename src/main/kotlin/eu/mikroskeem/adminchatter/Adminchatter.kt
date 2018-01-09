@@ -35,8 +35,11 @@ import net.md_5.bungee.api.connection.ProxiedPlayer
 import net.md_5.bungee.api.plugin.Command
 import net.md_5.bungee.api.plugin.Listener
 import net.md_5.bungee.api.plugin.Plugin
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 import java.util.Collections
 import java.util.WeakHashMap
+import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
 /**
@@ -96,6 +99,16 @@ const val CONFIGURATION_FILE_HEADER = """
  - {server_name} -> server where given player sent the adminchat message. For console, 'none' is used
  - {pretty_server_name} -> see above, just server name from configuration option `pretty-server-names` is used instead
 """
+
+// Better pattern for url handling
+val betterUrlPattern = Pattern.compile("^(?:(https?)://)?([-\\w_\\.]+\\.[a-z]{2,})(/\\S*)?$")
+
+internal fun injectBetterUrlPattern() {
+    val field = TextComponent::class.java.getDeclaredField("url").apply { isAccessible = true }
+    Field::class.java.getDeclaredField("modifiers").apply { isAccessible = true }
+            .set(field, field.modifiers and Modifier.FINAL.inv())
+    field.set(null, betterUrlPattern)
+}
 
 // Permission nodes
 const val CHAT_PERMISSION = "adminchatter.chat"

@@ -55,6 +55,14 @@ class AdminchatterPlugin: Plugin() {
                 header = CONFIGURATION_FILE_HEADER
         )
 
+        try {
+            injectBetterUrlPattern()
+        } catch (e: Exception) {
+            logger.warning("Failed to inject improved URL regex into TextComponent class. URLs with " +
+                    "extremely short domain names may not work!")
+            e.printStackTrace()
+        }
+
         setupCommands()
         registerCommand(AdminchatterCommand::class)
         registerListener(ChatListener::class)
