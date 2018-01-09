@@ -113,6 +113,11 @@ class Messages {
     @Setting(value = "must-supply-a-message", comment = "This message is shown when user tries to send empty adminchat message using command")
     var mustSupplyAMessage = "{plugin_prefix} &cYou must supply a message!"
         private set
+
+    @Setting(value = "url-component-hover-text", comment = "This text will be used in text components which contain a clickable url. " +
+            "Set empty to disable this feature and use same hover event as surrounding text does.")
+    var urlHoverText = "&eClick to open an URL"
+        private set
 }
 
 @ConfigSerializable

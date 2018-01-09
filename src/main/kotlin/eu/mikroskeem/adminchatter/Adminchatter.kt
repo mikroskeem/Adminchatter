@@ -29,6 +29,7 @@ import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.ProxyServer
 import net.md_5.bungee.api.chat.ClickEvent
+import net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.api.connection.ProxiedPlayer
@@ -147,6 +148,13 @@ internal fun sendAdminChat(sender: CommandSender, message: String) {
     // Add remaining text
     TextComponent.fromLegacyText(chatFormat.replacePlaceholders(senderName, message, serverName)).forEach {
         baseComponent.addExtra(it)
+    }
+
+    // Replace url components hover text
+    config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName)?.let { urlText ->
+        baseComponent.extra.filter { it.clickEvent?.action == OPEN_URL }.forEach {
+            it.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(urlText))
+        }
     }
 
     // Send message
