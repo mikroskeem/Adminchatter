@@ -91,20 +91,17 @@ class AdminchatterPlugin: Plugin() {
 class ChatListener: Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     fun on(event: ChatEvent) {
-        val prefix = config.adminChatMessagePrefix.takeUnless { it.isEmpty() }
+        val prefix = config.adminChatMessagePrefix.takeUnless { it.isEmpty() } ?: return
         var hadPrefix = false
         var message = event.message
 
-        if(event.isCancelled)
+        if(event.isCancelled || event.isCommand || event.sender !is ProxiedPlayer)
             return
 
-        if(event.isCommand)
+        if(!(event.sender as ProxiedPlayer).hasPermission(CHAT_PERMISSION))
             return
 
-        if(event.sender !is ProxiedPlayer)
-            return
-
-        if(prefix != null && message != prefix && message.startsWith(prefix)) {
+        if(message != prefix && message.startsWith(prefix)) {
             message = message.substring(prefix.length)
             hadPrefix = true
         }
