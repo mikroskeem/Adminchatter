@@ -1,37 +1,34 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
-    kotlin("jvm") version "1.2.21"
+    kotlin("jvm") version "1.2.31"
     id("net.minecrell.licenser") version "0.3"
     id("net.minecrell.plugin-yml.bungee") version "0.2.1"
     id("com.github.johnrengelman.shadow") version "2.0.2"
 }
 
-val gradleWrapperVersion: String by extra
-val kotlinVersion: String by extra
-val waterfallApiVersion: String by extra
-val configurateVersion: String by extra
-val bstatsVersion: String by extra
+group = "eu.mikroskeem"
+version = "0.0.7-SNAPSHOT"
+
+val waterfallApiVersion = "1.12-SNAPSHOT"
+val configurateVersion = "3.3"
+val bstatsVersion = "1.2"
 
 repositories {
     mavenLocal()
     mavenCentral()
 
-    maven {
-        name = "destroystokyo-repo"
-        setUrl("https://repo.destroystokyo.com/repository/maven-public/")
-    }
-
-    maven {
-        name = "bstats-repo"
-        setUrl("http://repo.bstats.org/content/repositories/releases/")
-    }
+    maven("https://repo.destroystokyo.com/repository/maven-public/")
+    maven("http://repo.bstats.org/content/repositories/releases/")
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", kotlinVersion))
+    implementation(kotlin("stdlib-jdk8"))
     implementation("ninja.leaping.configurate:configurate-hocon:$configurateVersion") {
         exclude(module = "guava")
     }
     implementation("org.bstats:bstats-bungeecord:$bstatsVersion")
+
     compileOnly("io.github.waterfallmc:waterfall-api:$waterfallApiVersion")
 }
 
@@ -47,7 +44,7 @@ bungee {
     author = "${listOf("mikroskeem")}"
 }
 
-val shadowJar by tasks.getting(com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar::class) {
+val shadowJar by tasks.getting(ShadowJar::class) {
     val relocations = listOf(
             "kotlin",
             "com.typesafe.config",
@@ -68,9 +65,9 @@ val shadowJar by tasks.getting(com.github.jengelman.gradle.plugins.shadow.tasks.
 }
 
 val wrapper by tasks.creating(Wrapper::class) {
-    gradleVersion = gradleWrapperVersion
+    gradleVersion = "4.6"
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
-tasks.getByName("jar").dependsOn(tasks.getByName("shadowJar"))
+tasks["jar"].dependsOn(shadowJar)
 defaultTasks("licenseFormat", "build")
