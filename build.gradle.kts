@@ -3,6 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     kotlin("jvm") version "1.2.31"
     id("net.minecrell.licenser") version "0.3"
+    id("net.minecrell.plugin-yml.bukkit") version "0.2.1"
     id("net.minecrell.plugin-yml.bungee") version "0.2.1"
     id("com.github.johnrengelman.shadow") version "2.0.2"
 }
@@ -10,6 +11,7 @@ plugins {
 group = "eu.mikroskeem"
 version = "0.0.7-SNAPSHOT"
 
+val paperApiVersion = "1.12.2-R0.1-SNAPSHOT"
 val waterfallApiVersion = "1.12-SNAPSHOT"
 val configurateVersion = "3.3"
 val bstatsVersion = "1.2"
@@ -30,6 +32,7 @@ dependencies {
     implementation("org.bstats:bstats-bungeecord:$bstatsVersion")
 
     compileOnly("io.github.waterfallmc:waterfall-api:$waterfallApiVersion")
+    compileOnly("com.destroystokyo.paper:paper-api:$paperApiVersion")
 }
 
 license {
@@ -42,6 +45,13 @@ bungee {
     main = "eu.mikroskeem.adminchatter.AdminchatterPlugin"
     description = "An adminchat plugin"
     author = "${listOf("mikroskeem")}"
+}
+
+bukkit {
+    name = "Adminchatter"
+    main = "eu.mikroskeem.adminchatter.AdminchatterPluginBukkit"
+    description = "An adminchat plugin. Companion version on Bukkit to play sounds"
+    authors = listOf("mikroskeem")
 }
 
 val shadowJar by tasks.getting(ShadowJar::class) {

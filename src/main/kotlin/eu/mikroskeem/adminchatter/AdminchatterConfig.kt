@@ -80,6 +80,14 @@ class Adminchatter {
     @Setting(value = "commands", comment = "Plugin commands")
     var commands = Commands()
         private set
+
+    @Setting(value = "sound", comment = "What sound should be played when player receives an adminchat message? " +
+            "Set empty to disable\n" +
+            "Requires Adminchatter plugin to be installed on all game servers\n" +
+            "Format: [Sound name from Bukkit sound enum : Volume : Pitch]\n" +
+            "See https://ci.destroystokyo.com/userContent/apidocs/org/bukkit/Sound.html")
+    var sound = "ENTITY_ITEM_PICKUP:0.5:1"
+        private set
 }
 
 @ConfigSerializable

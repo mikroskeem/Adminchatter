@@ -25,6 +25,7 @@
 
 package eu.mikroskeem.adminchatter
 
+import com.google.common.io.ByteStreams
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.ProxyServer
@@ -158,7 +159,11 @@ internal fun CommandSender.sendAdminChat(message: String) {
     }
 
     // Send message
-    proxy.players.filter { it.hasPermission(CHAT_PERMISSION) }.forEach { it.sendMessage(baseComponent) }
+    val sound: ByteArray? = config.sound.takeIf { it.isNotEmpty() }?.toByteArray()
+    proxy.players.filter { it.hasPermission(CHAT_PERMISSION) }.forEach {
+        sound?.run { it.server.sendData("Adminchatter", this) }
+        it.sendMessage(baseComponent)
+    }
 
     // Send message to console as well, if configured so
     if(config.allowConsoleUsage)
