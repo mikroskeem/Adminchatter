@@ -110,6 +110,6 @@ class ChatListener: Listener {
             return
 
         event.isCancelled = true
-        sendAdminChat(event.sender as ProxiedPlayer, message)
+        (event.sender as ProxiedPlayer).sendAdminChat(message)
     }
 }

@@ -48,7 +48,7 @@ class AdminchatCommand(commandName: String, aliases: Array<out String>): Command
             return
         }
 
-        sendAdminChat(sender, args.joinToString(separator = " "))
+        sender.sendAdminChat(args.joinToString(separator = " "))
     }
 }
 

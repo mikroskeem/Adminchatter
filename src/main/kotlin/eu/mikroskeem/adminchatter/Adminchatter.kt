@@ -102,7 +102,7 @@ const val CONFIGURATION_FILE_HEADER = """
 """
 
 // Better pattern for url handling
-val betterUrlPattern = Pattern.compile("^(?:(https?)://)?([-\\w_\\.]+\\.[a-z]{2,})(/\\S*)?$")
+val betterUrlPattern: Pattern = Pattern.compile("^(?:(https?)://)?([-\\w_\\.]+\\.[a-z]{2,})(/\\S*)?$")
 
 internal fun injectBetterUrlPattern() {
     val field = TextComponent::class.java.getDeclaredField("url").apply { isAccessible = true }
@@ -119,16 +119,16 @@ const val ADMINCHATTER_COMMAND_PERMISSION = "adminchatter.reload"
 val adminchatTogglePlayers: MutableSet<ProxiedPlayer> = Collections.newSetFromMap(WeakHashMap())
 
 // Broadcasts admin chat message
-internal fun sendAdminChat(sender: CommandSender, message: String) {
+internal fun CommandSender.sendAdminChat(message: String) {
     // Do not process empty message
     if(message.isEmpty()) {
-        sender.passMessage(config.messages.mustSupplyAMessage)
+        passMessage(config.messages.mustSupplyAMessage)
         return
     }
 
     val chatFormat = config.adminChatFormat.takeUnless { it.isEmpty() } ?: return // User did not set chat format, don't process anything
-    val senderName = if(sender is ProxiedPlayer) sender.name else (config.consoleName.takeUnless { it.isEmpty() } ?: "CONSOLE")
-    val serverName = if(sender is ProxiedPlayer) sender.server.info.name else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
+    val senderName = (this as? ProxiedPlayer)?.name ?: (config.consoleName.takeUnless { it.isEmpty() } ?: "CONSOLE")
+    val serverName = if(this is ProxiedPlayer) server.info.name else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
 
     // Start building chat component
     val baseComponent = TextComponent()
