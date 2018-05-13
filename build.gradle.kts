@@ -1,7 +1,7 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    kotlin("jvm") version "1.2.31"
+    kotlin("jvm") version "1.2.41"
     id("net.minecrell.licenser") version "0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.2.1"
     id("net.minecrell.plugin-yml.bungee") version "0.2.1"
@@ -75,7 +75,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
 }
 
 val wrapper by tasks.creating(Wrapper::class) {
-    gradleVersion = "4.6"
+    gradleVersion = "4.7"
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
