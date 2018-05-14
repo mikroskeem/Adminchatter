@@ -36,35 +36,50 @@ class AdminchatterCommand: Command("adminchatter", ADMINCHATTER_COMMAND_PERMISSI
     override fun execute(sender: CommandSender, args: Array<out String>) {
         plugin.configLoader.load()
         plugin.configLoader.save()
-        plugin.setupCommands()
+        plugin.setupChannels()
         sender.passMessage(config.messages.pluginConfigurationReloaded)
     }
 }
 
-class AdminchatCommand(commandName: String, aliases: Array<out String>): Command(commandName, CHAT_PERMISSION, *aliases) {
+class AdminchatCommand(private val info: ChannelCommandInfo): Command(info.commandName, BASE_CHAT_PERMISSION + info.channelName, *info.commandAliases.toTypedArray()) {
     override fun execute(sender: CommandSender, args: Array<out String>) {
         if(sender !is ProxiedPlayer && !config.allowConsoleUsage) {
-            sender.passMessage(config.messages.adminChatIsOnlyForPlayers)
+            sender.passMessage(config.messages.channelChatIsOnlyForPlayers)
             return
         }
 
-        sender.sendAdminChat(args.joinToString(separator = " "))
+        sender.sendChannelChat(info, args.joinToString(separator = " "))
     }
 }
 
-class AdminchatToggleCommand(commandName: String, aliases: Array<out String>): Command(commandName, CHAT_PERMISSION, *aliases) {
+class AdminchatToggleCommand(private val info: ChannelCommandInfo): Command(info.toggleCommandName, BASE_CHAT_PERMISSION + info.channelName, *info.toggleCommandAliases.toTypedArray()) {
     override fun execute(sender: CommandSender, args: Array<out String>) {
         if(sender !is ProxiedPlayer) {
-            sender.passMessage(config.messages.adminChatTogglingIsOnlyForPlayers)
+            sender.passMessage(config.messages.togglingIsOnlyForPlayers)
             return
         }
 
-        if(adminchatTogglePlayers.contains(sender)) {
-            adminchatTogglePlayers.remove(sender)
-            sender.passMessage(config.messages.adminChatToggleDisabled)
-        } else {
-            adminchatTogglePlayers.add(sender)
-            sender.passMessage(config.messages.adminChatToggleEnabled)
+        // Get player's current channel
+        val currentChannel = adminchatTogglePlayers[sender]
+
+        // If player has no channel
+        when {
+            currentChannel == null -> {
+                adminchatTogglePlayers[sender] = info
+                sender.passMessage(config.messages.toggledOn, info)
+            }
+
+            currentChannel.channelName == info.channelName -> {
+                // If toggled channel equals to one representing a command, untoggle
+                adminchatTogglePlayers.remove(sender)
+                sender.passMessage(config.messages.toggledOff, info)
+            }
+
+            else -> {
+                // If toggled channel is not same as one representing a command, switch channel
+                adminchatTogglePlayers[sender] = info
+                sender.passMessage(config.messages.channelSwitched, info)
+            }
         }
     }
 }

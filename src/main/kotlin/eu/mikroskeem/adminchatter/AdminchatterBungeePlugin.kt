@@ -25,15 +25,17 @@
 
 package eu.mikroskeem.adminchatter
 
+import com.google.common.reflect.TypeToken
+import eu.mikroskeem.adminchatter.ChannelCommandInfo.ChannelCommandInfoSerializer
 import net.md_5.bungee.api.connection.ProxiedPlayer
 import net.md_5.bungee.api.event.ChatEvent
+import net.md_5.bungee.api.plugin.Command
 import net.md_5.bungee.api.plugin.Listener
 import net.md_5.bungee.api.plugin.Plugin
 import net.md_5.bungee.event.EventHandler
 import net.md_5.bungee.event.EventPriority
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 import org.bstats.bungeecord.Metrics
-import java.lang.ref.SoftReference
-import java.lang.ref.WeakReference
 import java.nio.file.Paths
 
 /**
@@ -45,8 +47,9 @@ class AdminchatterPlugin: Plugin() {
     lateinit var configLoader: ConfigurationLoader<Adminchatter>
         private set
 
-    private var acCommand: AdminchatCommand? = null
-    private var actCommand: AdminchatToggleCommand? = null
+    private val channelsByName = HashMap<String, ChannelCommandInfo>()
+    internal val channelsByChatPrefix = HashMap<String, ChannelCommandInfo>()
+    private val registeredCommands = ArrayList<Command>()
 
     override fun onEnable() {
         configLoader = ConfigurationLoader(
@@ -63,7 +66,7 @@ class AdminchatterPlugin: Plugin() {
             e.printStackTrace()
         }
 
-        setupCommands()
+        setupChannels()
         registerCommand(AdminchatterCommand::class)
         registerListener(ChatListener::class)
 
@@ -72,18 +75,30 @@ class AdminchatterPlugin: Plugin() {
         }
     }
 
-    fun setupCommands() {
-        acCommand?.run(proxy.pluginManager::unregisterCommand)
-        actCommand?.run(proxy.pluginManager::unregisterCommand)
-        config.commands.run {
-            acCommand = registerCommand(AdminchatCommand(adminchatCommandName
-                    .takeUnless {it.isEmpty() } ?: "adminchat",
-                    adminchatCommandAliases.toTypedArray()
-            ))
-            actCommand = registerCommand(AdminchatToggleCommand(adminchatToggleCommandName
-                    .takeUnless { it.isEmpty() } ?: "adminchattoggle",
-                    adminchatToggleCommandAliases.toTypedArray()
-            ))
+    fun setupChannels() {
+        // Clean up channels and unregister commands
+        channelsByName.clear()
+        channelsByChatPrefix.clear()
+
+        if(registeredCommands.isNotEmpty())
+            registeredCommands.forEach(proxy.pluginManager::unregisterCommand)
+
+        // Register new channels and commands
+        config.channels.forEach { channel ->
+            // TODO: validate channel info here
+
+            channelsByName[channel.channelName] = channel
+            channelsByChatPrefix[channel.messagePrefix] = channel
+
+            // Register commands
+            registeredCommands.add(registerCommand(AdminchatCommand(channel)))
+            registeredCommands.add(registerCommand(AdminchatToggleCommand(channel)))
+        }
+    }
+
+    companion object {
+        init {
+            TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelCommandInfo::class.java), ChannelCommandInfoSerializer)
         }
     }
 }
@@ -91,25 +106,45 @@ class AdminchatterPlugin: Plugin() {
 class ChatListener: Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     fun on(event: ChatEvent) {
-        val prefix = config.adminChatMessagePrefix.takeUnless { it.isEmpty() } ?: return
-        var hadPrefix = false
         var message = event.message
+        val player = event.sender as? ProxiedPlayer ?: return
 
-        if(event.isCancelled || event.isCommand || event.sender !is ProxiedPlayer)
+        // Cancelled events and commands aren't useful here
+        if(event.isCancelled || event.isCommand)
             return
 
-        if(!(event.sender as ProxiedPlayer).hasPermission(CHAT_PERMISSION))
-            return
-
-        if(message != prefix && message.startsWith(prefix)) {
-            message = message.substring(prefix.length)
-            hadPrefix = true
+        // Figure out what channel is player in and check if player has channel toggle
+        var wasToggle = false
+        val channel: ChannelCommandInfo = if(adminchatTogglePlayers[player] != null) {
+            wasToggle = true
+            adminchatTogglePlayers[player]!!
+        } else {
+            // Find channel by prefix what player is using, or return
+            plugin.channelsByChatPrefix.filterKeys { message.startsWith(it) }
+                    .takeIf { it.isNotEmpty() }
+                    ?.values?.firstOrNull()
+                    ?: return
         }
 
-        if(!hadPrefix && !adminchatTogglePlayers.contains(event.sender as ProxiedPlayer))
+        // Check if player has permission for given channel
+        if(!player.hasPermission(BASE_CHAT_PERMISSION + channel.channelName))
             return
 
+        // If player didn't have toggled the channel
+        if(!wasToggle) {
+            if(message != channel.messagePrefix && message.startsWith(channel.messagePrefix)) {
+                // Strip prefix
+                message = message.substring(channel.messagePrefix.length)
+            } else {
+                // Nothing to do here
+                return
+            }
+        }
+
+        // Cancel event as message shouldn't reach to backend server
         event.isCancelled = true
-        (event.sender as ProxiedPlayer).sendAdminChat(message)
+
+        // Send message to channel
+        player.sendChannelChat(channel, message)
     }
 }
