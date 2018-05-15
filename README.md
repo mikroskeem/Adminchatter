@@ -18,7 +18,7 @@ An awesome, highly configurable adminchat plugin for BungeeCord
     * Description:
         - Sends message to admin chat
     * Permissions:
-        - **adminchatter.chat** (needed for receiving players as well)
+        - **adminchatter.chat.admin** (needed for receiving players as well)
 
 - **/adminchattoggle**
     * Aliases:
@@ -27,7 +27,10 @@ An awesome, highly configurable adminchat plugin for BungeeCord
     * Description
         - Toggles feature of sending your main chat to admin chat.
     * Permissions:
-        - **adminchatter.chat**
+        - **adminchatter.chat.admin**
+
+See configuration file for more channels, you can add them as much as you want.  
+Permission node is always `adminchatter.chat.<channel name>`.
 
 ## Building
 On Linux, clone this repository and do `./gradlew build` in project's directory using terminal.  
