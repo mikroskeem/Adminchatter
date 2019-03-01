@@ -1,7 +1,7 @@
 /*
  * This file is part of project Adminchatter, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2018 Mark Vainomaa <mikroskeem@mikroskeem.eu>
+ * Copyright (c) 2018-2019 Mark Vainomaa <mikroskeem@mikroskeem.eu>
  * Copyright (c) Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -186,17 +186,17 @@ data class ChannelCommandInfo(
 
         // TODO: This is really really error prone
         override fun deserialize(type: TypeToken<*>, node: ConfigurationNode): ChannelCommandInfo {
-            val name = node.getNode("name").string
-            val prettyName = node.getNode("pretty-name").string
-            val commandName = node.getNode("command-name").string
-            val prefix = node.getNode("message-prefix").string
-            val toggleName = node.getNode("toggle-command-name").string
-            val aliases = node.getNode("command-aliases").getList(STRING_TOKEN)
-            val toggleAliases = node.getNode("toggle-command-aliases").getList(STRING_TOKEN)
-            val messageFormat = node.getNode("format").string
-            val messageHoverText = node.getNode("hover-text").string
-            val command = node.getNode("click-command").string
-            val sound = node.getNode("sound").string
+            val name = node.getNode("name").string!!
+            val prettyName = node.getNode("pretty-name").string!!
+            val commandName = node.getNode("command-name").string!!
+            val prefix = node.getNode("message-prefix").string!!
+            val toggleName = node.getNode("toggle-command-name").string!!
+            val aliases = node.getNode("command-aliases").getList(STRING_TOKEN)!!
+            val toggleAliases = node.getNode("toggle-command-aliases").getList(STRING_TOKEN)!!
+            val messageFormat = node.getNode("format").string!!
+            val messageHoverText = node.getNode("hover-text").string!!
+            val command = node.getNode("click-command").string!!
+            val sound = node.getNode("sound").string!!
 
             return ChannelCommandInfo(name, prettyName, commandName,
                     prefix, toggleName, aliases,
@@ -204,8 +204,8 @@ data class ChannelCommandInfo(
                     command, sound)
         }
 
-        override fun serialize(type: TypeToken<*>, instance: ChannelCommandInfo, node: ConfigurationNode) {
-            instance.run {
+        override fun serialize(type: TypeToken<*>, instance: ChannelCommandInfo?, node: ConfigurationNode) {
+            instance!!.run {
                 node.getNode("name").run {
                     (this as? CommentedConfigurationNode)?.setComment("What should channel name be?")
 
