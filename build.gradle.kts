@@ -44,14 +44,14 @@ license {
 
 bungee {
     name = "Adminchatter"
-    main = "eu.mikroskeem.adminchatter.AdminchatterPlugin"
+    main = "eu.mikroskeem.adminchatter.bungee.AdminchatterPlugin"
     description = "An adminchat plugin"
     author = "${listOf("mikroskeem")}"
 }
 
 bukkit {
     name = "Adminchatter"
-    main = "eu.mikroskeem.adminchatter.AdminchatterPluginBukkit"
+    main = "eu.mikroskeem.adminchatter.bukkit.AdminchatterPlugin"
     description = "An adminchat plugin. Companion version on Bukkit to play sounds"
     authors = listOf("mikroskeem")
 }

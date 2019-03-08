@@ -23,118 +23,16 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter
+package eu.mikroskeem.adminchatter.common.config
 
 import com.google.common.reflect.TypeToken
 import ninja.leaping.configurate.ConfigurationNode
 import ninja.leaping.configurate.commented.CommentedConfigurationNode
-import ninja.leaping.configurate.objectmapping.Setting
-import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer
 
 /**
  * @author Mark Vainomaa
  */
-@ConfigSerializable
-class Adminchatter {
-    @Setting(value = "allow-console-usage", comment = "Whether to allow console usage for adminchat or not")
-    var allowConsoleUsage = false
-        private set
-
-    @Setting(value = "console-user-name", comment = "When console tries to use adminchat, what name should one have?")
-    var consoleName = "CONSOLE"
-        private set
-
-    @Setting(value = "none-server-name", comment = "What server name to use when server info is not accessible (e.g " +
-            "console admin chat usage)")
-    var noneServerName = "none"
-        private set
-
-    @Setting(value = "pretty-server-names", comment = "Pretty server names. Used with `{pretty_server_name}` placeholder. " +
-            "Defaults to server default name if one is not present here.`")
-    var prettyServerNames: Map<String, String> = mapOf(
-            Pair("lobby", "&eLobby")
-    )
-        private set
-
-    @Setting(value = "messages", comment = "Plugin messages")
-    var messages = Messages()
-        private set
-
-    @Setting(value = "channels", comment = "What channels does this plugin support?")
-    var channels = listOf(
-            ChannelCommandInfo(
-                    "admin",
-                    "&cAdmin",
-                    "adminchat",
-                    "@",
-                    "adminchattoggle",
-                    listOf("ac"),
-                    listOf("actoggle", "act"),
-                    "&8&l[&cAC&8&l] &f{player_name} &0» &c{message}",
-                    "&cServer &8» &a{pretty_server_name}",
-                    "/server {server_name}",
-                    "ENTITY_ITEM_PICKUP:0.5:1"
-            ),
-            ChannelCommandInfo(
-                    "mod",
-                    "&bMod",
-                    "modchat",
-                    "#",
-                    "modchattoggle",
-                    listOf("mc"),
-                    listOf("mctoggle", "mct"),
-                    "&8&l[&bMC&8&l] &f{player_name} &0» &b{message}",
-                    "&cServer &8» &a{pretty_server_name}",
-                    "/server {server_name}",
-                    "ENTITY_RABBIT_HURT:0.5:1"
-            )
-    )
-        private set
-}
-
-@ConfigSerializable
-class Messages {
-    @Setting(value = "plugin-prefix", comment = "Plugin message prefix")
-    var messagePrefix = "&8&l[&cAdminchatter&8&l] »"
-        private set
-
-    @Setting(value = "toggled-on", comment = "This message is shown when player toggles channel chat on")
-    var toggledOn = "{plugin_prefix} &7Chatting in channel {channel_name}&7 is now toggled &aon &7for you."
-        private set
-
-    @Setting(value = "toggled-off", comment = "This message is shown when player toggles channel chat off")
-    var toggledOff = "{plugin_prefix} &7Chatting in channel {channel_name}&7 is now toggled &coff &7for you."
-        private set
-
-    @Setting(value = "channel-switched", comment = "This message is shown when player toggles channel chat off")
-    var channelSwitched = "{plugin_prefix} &7You have toggled chatting into channel {channel_name}&7 now."
-        private set
-
-    @Setting(value = "toggling-is-only-for-players", comment = "This message is shown when non-player is trying " +
-            "to use channel toggle feature")
-    var togglingIsOnlyForPlayers = "{plugin_prefix} &cChat channel toggling is only supported for players"
-        private set
-
-    @Setting(value = "channel-chat-is-only-for-players", comment = "This message is shown when non-player is trying " +
-            "to use channel chat feature, while it is disabled for console")
-    var channelChatIsOnlyForPlayers = "{plugin_prefix} &cChat channels for console are turned off from configuration"
-        private set
-
-    @Setting(value = "plugin-configuration-is-reloaded", comment = "This message is shown when plugin configuration reloading succeeded")
-    var pluginConfigurationReloaded = "{plugin_prefix} &aPlugin configuration is reloaded!"
-        private set
-
-    @Setting(value = "must-supply-a-message", comment = "This message is shown when user tries to send empty adminchat message using command")
-    var mustSupplyAMessage = "{plugin_prefix} &cYou must supply a message!"
-        private set
-
-    @Setting(value = "url-component-hover-text", comment = "This text will be used in text components which contain a clickable url. " +
-            "Set empty to disable this feature and use same hover event as surrounding text does.")
-    var urlHoverText = "&eClick to open an URL"
-        private set
-}
-
 data class ChannelCommandInfo(
         /** Channel name */
         val channelName: String,

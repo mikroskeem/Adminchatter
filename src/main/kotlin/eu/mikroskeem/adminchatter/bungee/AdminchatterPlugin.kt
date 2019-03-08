@@ -23,17 +23,17 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter
+package eu.mikroskeem.adminchatter.bungee
 
 import com.google.common.reflect.TypeToken
-import eu.mikroskeem.adminchatter.ChannelCommandInfo.ChannelCommandInfoSerializer
-import net.md_5.bungee.api.connection.ProxiedPlayer
-import net.md_5.bungee.api.event.ChatEvent
+import eu.mikroskeem.adminchatter.common.ConfigurationLoader
+import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
+import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo.ChannelCommandInfoSerializer
+import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import net.md_5.bungee.api.plugin.Command
-import net.md_5.bungee.api.plugin.Listener
 import net.md_5.bungee.api.plugin.Plugin
-import net.md_5.bungee.event.EventHandler
-import net.md_5.bungee.event.EventPriority
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 import org.bstats.bungeecord.Metrics
 import java.nio.file.Paths
@@ -44,7 +44,7 @@ import java.nio.file.Paths
  * @author Mark Vainomaa
  */
 class AdminchatterPlugin: Plugin() {
-    lateinit var configLoader: ConfigurationLoader<Adminchatter>
+    lateinit var configLoader: ConfigurationLoader<AdminchatterConfig>
         private set
 
     private val channelsByName = HashMap<String, ChannelCommandInfo>()
@@ -54,7 +54,7 @@ class AdminchatterPlugin: Plugin() {
     override fun onEnable() {
         configLoader = ConfigurationLoader(
                 Paths.get(dataFolder.absolutePath, "config.cfg"),
-                Adminchatter::class.java,
+                AdminchatterConfig::class.java,
                 header = CONFIGURATION_FILE_HEADER
         )
 
@@ -100,51 +100,5 @@ class AdminchatterPlugin: Plugin() {
         init {
             TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelCommandInfo::class.java), ChannelCommandInfoSerializer)
         }
-    }
-}
-
-class ChatListener: Listener {
-    @EventHandler(priority = EventPriority.HIGHEST)
-    fun on(event: ChatEvent) {
-        var message = event.message
-        val player = event.sender as? ProxiedPlayer ?: return
-
-        // Cancelled events and commands aren't useful here
-        if(event.isCancelled || event.isCommand)
-            return
-
-        // Figure out what channel is player in and check if player has channel toggle
-        var wasToggle = false
-        val channel: ChannelCommandInfo = if(adminchatTogglePlayers[player] != null) {
-            wasToggle = true
-            adminchatTogglePlayers[player]!!
-        } else {
-            // Find channel by prefix what player is using, or return
-            plugin.channelsByChatPrefix.filterKeys { message.startsWith(it) }
-                    .takeIf { it.isNotEmpty() }
-                    ?.values?.firstOrNull()
-                    ?: return
-        }
-
-        // Check if player has permission for given channel
-        if(!player.hasPermission(BASE_CHAT_PERMISSION + channel.channelName))
-            return
-
-        // If player didn't have toggled the channel
-        if(!wasToggle) {
-            if(message != channel.messagePrefix && message.startsWith(channel.messagePrefix)) {
-                // Strip prefix
-                message = message.substring(channel.messagePrefix.length)
-            } else {
-                // Nothing to do here
-                return
-            }
-        }
-
-        // Cancel event as message shouldn't reach to backend server
-        event.isCancelled = true
-
-        // Send message to channel
-        player.sendChannelChat(channel, message)
     }
 }

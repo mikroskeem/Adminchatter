@@ -23,8 +23,11 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter
+package eu.mikroskeem.adminchatter.bungee
 
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.utils.ADMINCHATTER_COMMAND_PERMISSION
+import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
 import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.connection.ProxiedPlayer
 import net.md_5.bungee.api.plugin.Command

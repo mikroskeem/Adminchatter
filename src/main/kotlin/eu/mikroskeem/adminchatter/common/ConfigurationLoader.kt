@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter
+package eu.mikroskeem.adminchatter.common
 
 import ninja.leaping.configurate.ConfigurationOptions
 import ninja.leaping.configurate.commented.CommentedConfigurationNode

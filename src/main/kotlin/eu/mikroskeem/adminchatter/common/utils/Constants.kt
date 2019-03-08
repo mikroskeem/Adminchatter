@@ -23,40 +23,14 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter
-
-import org.bstats.bukkit.Metrics
-import org.bukkit.Sound
-import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
+package eu.mikroskeem.adminchatter.common.utils
 
 /**
  * @author Mark Vainomaa
  */
-class AdminchatterPluginBukkit: JavaPlugin() {
-    override fun onEnable() {
-        server.scheduler.runTaskAsynchronously(this, Runnable {
-            Metrics(this)
-        })
+// Permission nodes
+const val BASE_CHAT_PERMISSION = "adminchatter.chat."
+const val ADMINCHATTER_COMMAND_PERMISSION = "adminchatter.reload"
 
-        server.messenger.registerIncomingPluginChannel(this, "Adminchatter", this::processMessage)
-    }
-
-    private fun processMessage(channel: String, player: Player, data: ByteArray) {
-        if(channel != "Adminchatter")
-            return
-
-        player.playSound(String(data))
-    }
-}
-
-private fun Player.playSound(soundData: String) {
-    val (sound, volume, pitch) = soundData.split(":", limit = 3).takeIf { it.size == 3 }
-            ?: return
-
-    playSound(player.location,
-            Sound.values().firstOrNull { it.name == sound } ?: return,
-            volume.toFloatOrNull() ?: return,
-            pitch.toFloatOrNull() ?: return
-    )
-}
+// Plugin channel
+const val PLUGIN_CHANNEL_SOUND = "adminchatter:sound"
