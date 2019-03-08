@@ -30,6 +30,7 @@ dependencies {
     implementation("org.spongepowered:configurate-hocon:$configurateVersion") {
         exclude(module = "guava")
     }
+    implementation("org.bstats:bstats-bukkit:$bstatsVersion")
     implementation("org.bstats:bstats-bungeecord:$bstatsVersion")
 
     compileOnly("io.github.waterfallmc:waterfall-api:$waterfallApiVersion")
