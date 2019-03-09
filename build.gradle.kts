@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.21"
@@ -73,6 +74,12 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         exclude("org/jetbrains/annotations/**")
         exclude("org/intellij/lang/annotations/**")
         exclude("META-INF/maven/**")
+    }
+}
+
+val compileKotlin by tasks.getting(KotlinCompile::class) {
+    kotlinOptions {
+        freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")
     }
 }
 
