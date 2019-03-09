@@ -25,8 +25,9 @@
 
 package eu.mikroskeem.adminchatter.bungee
 
-import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
-import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
+import eu.mikroskeem.adminchatter.common.handleToggleChat
+import eu.mikroskeem.adminchatter.common.platform.BungeeEvent
+import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
 import net.md_5.bungee.api.connection.ProxiedPlayer
 import net.md_5.bungee.api.event.ChatEvent
 import net.md_5.bungee.api.plugin.Listener
@@ -39,45 +40,13 @@ import net.md_5.bungee.event.EventPriority
 class ChatListener: Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     fun on(event: ChatEvent) {
-        var message = event.message
-        val player = event.sender as? ProxiedPlayer ?: return
+        val player = BungeePlatformSender(event.sender as? ProxiedPlayer
+                ?: return)
 
         // Cancelled events and commands aren't useful here
         if(event.isCancelled || event.isCommand)
             return
 
-        // Figure out what channel is player in and check if player has channel toggle
-        var wasToggle = false
-        val channel: ChannelCommandInfo = if(adminchatTogglePlayers[player] != null) {
-            wasToggle = true
-            adminchatTogglePlayers[player]!!
-        } else {
-            // Find channel by prefix what player is using, or return
-            plugin.channelsByChatPrefix.filterKeys { message.startsWith(it) }
-                    .takeIf { it.isNotEmpty() }
-                    ?.values?.firstOrNull()
-                    ?: return
-        }
-
-        // Check if player has permission for given channel
-        if(!player.hasPermission(BASE_CHAT_PERMISSION + channel.channelName))
-            return
-
-        // If player didn't have toggled the channel
-        if(!wasToggle) {
-            if(message != channel.messagePrefix && message.startsWith(channel.messagePrefix)) {
-                // Strip prefix
-                message = message.substring(channel.messagePrefix.length)
-            } else {
-                // Nothing to do here
-                return
-            }
-        }
-
-        // Cancel event as message shouldn't reach to backend server
-        event.isCancelled = true
-
-        // Send message to channel
-        player.sendChannelChat(channel, message)
+        handleToggleChat(BungeeEvent(event), player, event.message)
     }
 }

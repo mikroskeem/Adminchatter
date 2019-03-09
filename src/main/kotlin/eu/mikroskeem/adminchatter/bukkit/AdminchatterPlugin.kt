@@ -25,9 +25,19 @@
 
 package eu.mikroskeem.adminchatter.bukkit
 
+import com.google.common.reflect.TypeToken
+import eu.mikroskeem.adminchatter.common.ConfigurationLoader
+import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
+import eu.mikroskeem.adminchatter.common.channelsByName
+import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
+import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.platform.BukkitPlatform
+import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
+import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 import org.bstats.bukkit.Metrics
-import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -35,24 +45,70 @@ import org.bukkit.plugin.java.JavaPlugin
  * @author Mark Vainomaa
  */
 class AdminchatterPlugin: JavaPlugin() {
+    lateinit var configLoader: ConfigurationLoader<AdminchatterConfig>
+        private set
+
+    override fun onLoad() {
+        currentPlatform = BukkitPlatform(this)
+    }
+
     override fun onEnable() {
         server.scheduler.runTaskAsynchronously(this, Runnable {
             Metrics(this)
         })
 
-        server.messenger.registerIncomingPluginChannel(this, PLUGIN_CHANNEL_SOUND, this::processMessage)
+        if(server.spigot().spigotConfig.getBoolean("settings.bungeecord", false)) {
+            logger.info("BungeeCord mode - listening for sound notification messages")
+            server.messenger.registerIncomingPluginChannel(this, PLUGIN_CHANNEL_SOUND, this::processMessage)
+            return
+        }
+
+        configLoader = ConfigurationLoader(
+                dataFolder.toPath().resolve("config.cfg"),
+                AdminchatterConfig::class.java,
+                header = CONFIGURATION_FILE_HEADER
+        )
+
+        try {
+            injectBetterUrlPattern()
+        } catch (e: Exception) {
+            logger.warning("Failed to inject improved URL regex into TextComponent class. URLs with " +
+                    "extremely short domain names may not work!")
+            e.printStackTrace()
+        }
+
+        registerListener<ChatListener>()
+        registerListener<CommandListener>()
+        registerCommand<AdminchatterCommand>("adminchatter")
+    }
+
+    fun setupChannels() {
+        // Clean up channels and unregister commands
+        channelsByName.clear()
+        channelsByChatPrefix.clear()
+
+        // Register new channels and commands
+        eu.mikroskeem.adminchatter.common.platform.config.channels.forEach { channel ->
+            // TODO: validate channel info here
+
+            channelsByName[channel.channelName] = channel
+            channelsByChatPrefix[channel.messagePrefix] = channel
+
+            // Register commands
+            // TODO: handled by CommandListener right now
+        }
     }
 
     private fun processMessage(channel: String, player: Player, data: ByteArray) {
         if(channel != PLUGIN_CHANNEL_SOUND)
             return
 
-        val (sound, volume, pitch) = String(data).split(":", limit = 3).takeIf { it.size == 3 } ?: return
+        player.playSound(String(data))
+    }
 
-        player.playSound(player.location,
-                Sound.values().firstOrNull { it.name == sound } ?: return,
-                volume.toFloatOrNull() ?: return,
-                pitch.toFloatOrNull() ?: return
-        )
+    companion object {
+        init {
+            TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelCommandInfo::class.java), ChannelCommandInfo)
+        }
     }
 }

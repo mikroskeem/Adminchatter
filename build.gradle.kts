@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -53,8 +54,20 @@ bungee {
 bukkit {
     name = "Adminchatter"
     main = "eu.mikroskeem.adminchatter.bukkit.AdminchatterPlugin"
-    description = "An adminchat plugin. Companion version on Bukkit to play sounds"
+    description = "An adminchat plugin"
     authors = listOf("mikroskeem")
+
+    commands {
+        create("adminchatter") {
+            permission = "adminchatter.reload"
+        }
+    }
+
+    permissions {
+        create("adminchatter.reload") {
+            default = Default.OP
+        }
+    }
 }
 
 val shadowJar by tasks.getting(ShadowJar::class) {

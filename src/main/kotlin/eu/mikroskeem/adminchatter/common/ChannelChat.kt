@@ -23,48 +23,30 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.bungee
+package eu.mikroskeem.adminchatter.common
 
+import eu.mikroskeem.adminchatter.bukkit.playSound
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.platform.BukkitPlatformSender
+import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
+import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
+import eu.mikroskeem.adminchatter.common.platform.PlatformSender
+import eu.mikroskeem.adminchatter.common.platform.config
+import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
-import eu.mikroskeem.adminchatter.common.utils.colored
-import net.md_5.bungee.api.CommandSender
+import eu.mikroskeem.adminchatter.common.utils.passMessage
+import eu.mikroskeem.adminchatter.common.utils.replacePlaceholders
 import net.md_5.bungee.api.chat.ClickEvent
-import net.md_5.bungee.api.chat.ClickEvent.Action.OPEN_URL
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
-import net.md_5.bungee.api.connection.ProxiedPlayer
-import java.util.WeakHashMap
+import org.bukkit.entity.Player
 
 /**
- * Main plugin logic
- *
  * @author Mark Vainomaa
  */
-fun String.replacePlaceholders(playerName: String? = null,
-                               message: String? = null,
-                               serverName: String? = null,
-                               channelName: String? = null): String {
-    return this.colored()
-            .replace("{plugin_prefix}", config.messages.messagePrefix.colored())
-            .replace("{player_name}", playerName ?: "")
-            .replace("{message}", message ?: "")
-            .replace("{colored_message}", message?.colored() ?: "")
-            .replace("{channel_name}", channelName?.colored() ?: "")
-            .replace("{server_name}", serverName ?: "")
-            .replace("{pretty_server_name}", serverName?.run(config.prettyServerNames::get)?.colored() ?: serverName ?: "")
-}
-
-fun CommandSender.passMessage(message: String, channel: ChannelCommandInfo? = null) {
-    sendMessage(*TextComponent.fromLegacyText(message.replacePlaceholders(name, message, (this as? ProxiedPlayer)?.server?.info?.name, channel?.prettyChannelName)))
-}
-
-// Stores players who have adminchat toggle on. Cleans up itself, as it is backed by WeakHashMap
-val adminchatTogglePlayers = WeakHashMap<ProxiedPlayer, ChannelCommandInfo>()
-
 // Broadcasts admin chat message
-internal fun CommandSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
+fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     // Do not process empty message
     if(message.isEmpty()) {
         passMessage(config.messages.mustSupplyAMessage)
@@ -72,8 +54,8 @@ internal fun CommandSender.sendChannelChat(info: ChannelCommandInfo, message: St
     }
 
     val chatFormat = info.messageFormat.takeUnless { it.isEmpty() } ?: return // User did not set chat format, don't process anything
-    val senderName = (this as? ProxiedPlayer)?.name ?: (config.consoleName.takeUnless { it.isEmpty() } ?: "CONSOLE")
-    val serverName = if(this is ProxiedPlayer) server.info?.name else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
+    val senderName = if(isConsole) (config.consoleName.takeUnless { it.isEmpty() } ?: name) else name
+    val serverName = if(this is BungeePlatformSender) server?.info?.name else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
 
     // Start building chat component
     val baseComponent = TextComponent()
@@ -97,19 +79,61 @@ internal fun CommandSender.sendChannelChat(info: ChannelCommandInfo, message: St
 
     // Replace url components hover text
     config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.let { urlText ->
-        baseComponent.extra.filter { it.clickEvent?.action == OPEN_URL }.forEach {
+        baseComponent.extra.filter { it.clickEvent?.action == ClickEvent.Action.OPEN_URL }.forEach {
             it.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(urlText))
         }
     }
 
     // Send message
     val sound: ByteArray? = info.soundEffect.takeIf { it.isNotEmpty() }?.toByteArray()
-    proxy.players.filter { it.hasPermission(BASE_CHAT_PERMISSION + info.channelName) }.forEach {
-        sound?.run { it.server.sendData(PLUGIN_CHANNEL_SOUND, this) }
+    currentPlatform.onlinePlayers.filter { it.hasPermission(BASE_CHAT_PERMISSION + info.channelName) }.forEach {
+        sound?.run {
+            (it as? BungeePlatformSender)?.server?.sendData(PLUGIN_CHANNEL_SOUND, this)
+            ((it as? BukkitPlatformSender)?.sender as? Player)?.playSound(String(sound)) // Bad
+        }
         it.sendMessage(baseComponent)
     }
 
     // Send message to console as well, if configured so
     if(config.allowConsoleUsage)
-        proxy.console.sendMessage(baseComponent)
+        currentPlatform.consoleSender.sendMessage(baseComponent)
+}
+
+// Handles chat events
+fun handleToggleChat(event: PlatformEvent, sender: PlatformSender, chatMessage: String) {
+    var message = chatMessage
+
+    // Figure out what channel is player in and check if player has channel toggle
+    var wasToggle = false
+    val channel: ChannelCommandInfo = if(adminchatTogglePlayers[sender.base] != null) {
+        wasToggle = true
+        adminchatTogglePlayers[sender.base]!!
+    } else {
+        // Find channel by prefix what sender is using, or return
+        channelsByChatPrefix.filterKeys { message.startsWith(it) }
+                .takeIf { it.isNotEmpty() }
+                ?.values?.firstOrNull()
+                ?: return
+    }
+
+    // Check if player has permission for given channel
+    if(!sender.hasPermission(BASE_CHAT_PERMISSION + channel.channelName))
+        return
+
+    // If player didn't have toggled the channel
+    if(!wasToggle) {
+        if(message != channel.messagePrefix && message.startsWith(channel.messagePrefix)) {
+            // Strip prefix
+            message = message.substring(channel.messagePrefix.length)
+        } else {
+            // Nothing to do here
+            return
+        }
+    }
+
+    // Cancel event as message shouldn't reach to backend server or chat
+    event.isCancelled = true
+
+    // Send message to channel
+    sender.sendChannelChat(channel, message)
 }

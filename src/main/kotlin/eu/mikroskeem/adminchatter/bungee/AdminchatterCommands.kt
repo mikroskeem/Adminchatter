@@ -25,9 +25,14 @@
 
 package eu.mikroskeem.adminchatter.bungee
 
+import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
+import eu.mikroskeem.adminchatter.common.platform.config
+import eu.mikroskeem.adminchatter.common.sendChannelChat
 import eu.mikroskeem.adminchatter.common.utils.ADMINCHATTER_COMMAND_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
+import eu.mikroskeem.adminchatter.common.utils.passMessage
 import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.connection.ProxiedPlayer
 import net.md_5.bungee.api.plugin.Command
@@ -36,7 +41,9 @@ import net.md_5.bungee.api.plugin.Command
  * @author Mark Vainomaa
  */
 class AdminchatterCommand: Command("adminchatter", ADMINCHATTER_COMMAND_PERMISSION) {
-    override fun execute(sender: CommandSender, args: Array<out String>) {
+    override fun execute(_sender: CommandSender, args: Array<out String>) {
+        val sender = BungeePlatformSender(_sender)
+
         plugin.configLoader.load()
         plugin.configLoader.save()
         plugin.setupChannels()
@@ -45,8 +52,9 @@ class AdminchatterCommand: Command("adminchatter", ADMINCHATTER_COMMAND_PERMISSI
 }
 
 class AdminchatCommand(private val info: ChannelCommandInfo): Command(info.commandName, BASE_CHAT_PERMISSION + info.channelName, *info.commandAliases.toTypedArray()) {
-    override fun execute(sender: CommandSender, args: Array<out String>) {
-        if(sender !is ProxiedPlayer && !config.allowConsoleUsage) {
+    override fun execute(_sender: CommandSender, args: Array<out String>) {
+        val sender = BungeePlatformSender(_sender)
+        if(_sender !is ProxiedPlayer && !config.allowConsoleUsage) {
             sender.passMessage(config.messages.channelChatIsOnlyForPlayers)
             return
         }
@@ -56,31 +64,33 @@ class AdminchatCommand(private val info: ChannelCommandInfo): Command(info.comma
 }
 
 class AdminchatToggleCommand(private val info: ChannelCommandInfo): Command(info.toggleCommandName, BASE_CHAT_PERMISSION + info.channelName, *info.toggleCommandAliases.toTypedArray()) {
-    override fun execute(sender: CommandSender, args: Array<out String>) {
-        if(sender !is ProxiedPlayer) {
+    override fun execute(_sender: CommandSender, args: Array<out String>) {
+        val sender = BungeePlatformSender(_sender)
+
+        if(_sender !is ProxiedPlayer) {
             sender.passMessage(config.messages.togglingIsOnlyForPlayers)
             return
         }
 
         // Get player's current channel
-        val currentChannel = adminchatTogglePlayers[sender]
+        val currentChannel = adminchatTogglePlayers[sender.base]
 
         // If player has no channel
         when {
             currentChannel == null -> {
-                adminchatTogglePlayers[sender] = info
+                adminchatTogglePlayers[sender.base] = info
                 sender.passMessage(config.messages.toggledOn, info)
             }
 
             currentChannel.channelName == info.channelName -> {
                 // If toggled channel equals to one representing a command, untoggle
-                adminchatTogglePlayers.remove(sender)
+                adminchatTogglePlayers.remove(sender.base)
                 sender.passMessage(config.messages.toggledOff, info)
             }
 
             else -> {
                 // If toggled channel is not same as one representing a command, switch channel
-                adminchatTogglePlayers[sender] = info
+                adminchatTogglePlayers[sender.base] = info
                 sender.passMessage(config.messages.channelSwitched, info)
             }
         }

@@ -23,29 +23,15 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.bungee
+package eu.mikroskeem.adminchatter.common
 
-import net.md_5.bungee.api.ProxyServer
-import net.md_5.bungee.api.plugin.Command
-import net.md_5.bungee.api.plugin.Listener
-import net.md_5.bungee.api.plugin.Plugin
-import kotlin.reflect.KClass
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.platform.PlatformSender
+import java.util.WeakHashMap
 
 /**
  * @author Mark Vainomaa
  */
-val proxy: ProxyServer get() = ProxyServer.getInstance()
-val plugin: AdminchatterPlugin get() = proxy.pluginManager.getPlugin("Adminchatter") as AdminchatterPlugin
-
-fun <T: Listener> Plugin.registerListener(listenerClass: KClass<T>) {
-    proxy.pluginManager.registerListener(this, listenerClass.java.getConstructor().newInstance())
-}
-
-fun <T: Command> Plugin.registerCommand(command: T): T {
-    proxy.pluginManager.registerCommand(this, command)
-    return command
-}
-
-fun <T: Command> Plugin.registerCommand(commandClass: KClass<T>): T {
-    return registerCommand(commandClass.java.getConstructor().newInstance())
-}
+val channelsByName = HashMap<String, ChannelCommandInfo>()
+val channelsByChatPrefix = HashMap<String, ChannelCommandInfo>()
+val adminchatTogglePlayers = WeakHashMap<Any, ChannelCommandInfo>()

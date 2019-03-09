@@ -25,6 +25,11 @@
 
 package eu.mikroskeem.adminchatter.common.utils
 
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
+import eu.mikroskeem.adminchatter.common.platform.PlatformSender
+import eu.mikroskeem.adminchatter.common.platform.config
+import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.TextComponent
 import java.lang.reflect.Field
@@ -34,7 +39,31 @@ import java.util.regex.Pattern
 /**
  * @author Mark Vainomaa
  */
+fun String.replacePlaceholders(playerName: String? = null,
+                               message: String? = null,
+                               serverName: String? = null,
+                               channelName: String? = null): String {
+    return this.colored()
+            .replace("{plugin_prefix}", config.messages.messagePrefix.colored())
+            .replace("{player_name}", playerName ?: "")
+            .replace("{message}", message ?: "")
+            .replace("{colored_message}", message?.colored() ?: "")
+            .replace("{channel_name}", channelName?.colored() ?: "")
+            .replace("{server_name}", serverName ?: "")
+            .replace("{pretty_server_name}", serverName?.run(config.prettyServerNames::get)?.colored() ?: serverName ?: "")
+}
+
 fun String.colored(): String = ChatColor.translateAlternateColorCodes('&', this)
+
+fun PlatformSender.passMessage(message: String, channel: ChannelCommandInfo? = null) {
+    val serverName = if(currentPlatform.isBungee) {
+        (this as? BungeePlatformSender)?.server?.info?.name
+    } else {
+        ""
+    }
+
+    sendMessage(*TextComponent.fromLegacyText(message.replacePlaceholders(name, message, serverName, channel?.prettyChannelName)))
+}
 
 // Better pattern for url handling
 val betterUrlPattern: Pattern = Pattern.compile("^(?:(https?)://)?([-\\w_\\.]+\\.[a-z]{2,})(/\\S*)?$")

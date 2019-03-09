@@ -27,16 +27,20 @@ package eu.mikroskeem.adminchatter.bungee
 
 import com.google.common.reflect.TypeToken
 import eu.mikroskeem.adminchatter.common.ConfigurationLoader
+import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
+import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo.ChannelCommandInfoSerializer
+import eu.mikroskeem.adminchatter.common.platform.BungeePlatform
+import eu.mikroskeem.adminchatter.common.platform.config
+import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import net.md_5.bungee.api.plugin.Command
 import net.md_5.bungee.api.plugin.Plugin
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 import org.bstats.bungeecord.Metrics
-import java.nio.file.Paths
 
 /**
  * Adminchatter plugin
@@ -47,13 +51,15 @@ class AdminchatterPlugin: Plugin() {
     lateinit var configLoader: ConfigurationLoader<AdminchatterConfig>
         private set
 
-    private val channelsByName = HashMap<String, ChannelCommandInfo>()
-    internal val channelsByChatPrefix = HashMap<String, ChannelCommandInfo>()
     private val registeredCommands = ArrayList<Command>()
+
+    override fun onLoad() {
+        currentPlatform = BungeePlatform(this)
+    }
 
     override fun onEnable() {
         configLoader = ConfigurationLoader(
-                Paths.get(dataFolder.absolutePath, "config.cfg"),
+                dataFolder.toPath().resolve("config.cfg"),
                 AdminchatterConfig::class.java,
                 header = CONFIGURATION_FILE_HEADER
         )
