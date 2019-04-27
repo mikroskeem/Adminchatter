@@ -39,8 +39,8 @@ val plugin: AdminchatterPlugin get() = JavaPlugin.getPlugin(AdminchatterPlugin::
 
 inline fun <reified T: CommandExecutor> JavaPlugin.registerCommand(name: String) {
     val command = T::class.java.getConstructor().newInstance()
-    getCommand(name).apply {
-        executor = command
+    getCommand(name)!!.apply {
+        setExecutor(command)
         if(command is TabCompleter)
             tabCompleter = command
     }
@@ -56,7 +56,7 @@ fun Player.playSound(soundString: String) {
         return
     }
 
-    player.playSound(player.location,
+    playSound(location,
             Sound.values().firstOrNull { it.name == sound } ?: run { plugin.logger.warning("Invalid sound: $sound"); return },
             volume.toFloatOrNull() ?: run { plugin.logger.warning("Invalid volume: $volume"); return },
             pitch.toFloatOrNull() ?: run { plugin.logger.warning("Invalid pitch: $pitch"); return }
