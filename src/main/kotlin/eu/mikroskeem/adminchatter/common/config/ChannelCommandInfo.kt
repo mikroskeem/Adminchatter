@@ -89,8 +89,8 @@ data class ChannelCommandInfo(
             val commandName = node.getNode("command-name").string!!
             val prefix = node.getNode("message-prefix").string!!
             val toggleName = node.getNode("toggle-command-name").string!!
-            val aliases = node.getNode("command-aliases").getList(STRING_TOKEN)!!
-            val toggleAliases = node.getNode("toggle-command-aliases").getList(STRING_TOKEN)!!
+            val aliases = node.getNode("command-aliases").getList(STRING_TOKEN)
+            val toggleAliases = node.getNode("toggle-command-aliases").getList(STRING_TOKEN)
             val messageFormat = node.getNode("format").string!!
             val messageHoverText = node.getNode("hover-text").string!!
             val command = node.getNode("click-command").string!!
