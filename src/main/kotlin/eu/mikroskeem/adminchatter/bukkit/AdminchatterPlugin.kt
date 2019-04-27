@@ -38,13 +38,16 @@ import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
 import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 import org.bstats.bukkit.Metrics
+import org.bukkit.command.Command
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.LinkedList
 
 /**
  * @author Mark Vainomaa
  */
 class AdminchatterPlugin: JavaPlugin() {
+    private val registeredCommands = LinkedList<Command>()
     lateinit var configLoader: ConfigurationLoader<AdminchatterConfig>
         private set
 
@@ -78,14 +81,15 @@ class AdminchatterPlugin: JavaPlugin() {
         }
 
         registerListener<ChatListener>()
-        registerListener<CommandListener>()
         registerCommand<AdminchatterCommand>("adminchatter")
+        setupChannels()
     }
 
     fun setupChannels() {
         // Clean up channels and unregister commands
         channelsByName.clear()
         channelsByChatPrefix.clear()
+        registeredCommands.forEach { it.unregister(server.commandMap) }
 
         // Register new channels and commands
         eu.mikroskeem.adminchatter.common.platform.config.channels.forEach { channel ->
@@ -95,7 +99,10 @@ class AdminchatterPlugin: JavaPlugin() {
             channelsByChatPrefix[channel.messagePrefix] = channel
 
             // Register commands
-            // TODO: handled by CommandListener right now
+            val chatCommand = AdminchatterChatCommand(channel).apply { registeredCommands.add(this) }
+            val toggleCommand = AdminchatterToggleCommand(channel).apply { registeredCommands.add(this) }
+            server.commandMap.register("adminchatter", chatCommand)
+            server.commandMap.register("adminchatter", toggleCommand)
         }
     }
 
