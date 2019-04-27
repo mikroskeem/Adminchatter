@@ -1,6 +1,6 @@
 # Adminchatter
 
-An awesome, highly configurable adminchat plugin for BungeeCord
+An awesome, highly configurable adminchat plugin for Waterfall and Paper
 
 ## Requirements
 - Java 8
