@@ -34,6 +34,7 @@ import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.BukkitPlatform
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
+import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
 import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
@@ -103,6 +104,11 @@ class AdminchatterPlugin: JavaPlugin() {
             val toggleCommand = AdminchatterToggleCommand(channel).apply { registeredCommands.add(this) }
             server.commandMap.register("adminchatter", chatCommand)
             server.commandMap.register("adminchatter", toggleCommand)
+        }
+
+        // Send updated commands list to online players
+        server.onlinePlayers.forEach {
+            it.updateCommands()
         }
     }
 
