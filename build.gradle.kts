@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "eu.mikroskeem"
-version = "0.0.10"
+version = "0.0.11-SNAPSHOT"
 
 val paperApiVersion = "1.13.2-R0.1-SNAPSHOT"
 val waterfallApiVersion = "1.13-SNAPSHOT"
