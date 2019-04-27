@@ -3,7 +3,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription.Permission.Default
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.21"
+    kotlin("jvm") version "1.3.31"
     id("net.minecrell.licenser") version "0.4.1"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
     id("net.minecrell.plugin-yml.bungee") version "0.3.0"
@@ -11,19 +11,19 @@ plugins {
 }
 
 group = "eu.mikroskeem"
-version = "0.0.10-SNAPSHOT"
+version = "0.0.10"
 
 val paperApiVersion = "1.13.2-R0.1-SNAPSHOT"
 val waterfallApiVersion = "1.13-SNAPSHOT"
-val configurateVersion = "3.6"
-val bstatsVersion = "1.2"
+val configurateVersion = "3.7-SNAPSHOT"
+val bstatsVersion = "1.4"
 
 repositories {
     mavenLocal()
     mavenCentral()
 
-    maven("https://repo.destroystokyo.com/repository/maven-public/")
-    maven("http://repo.bstats.org/content/repositories/releases/")
+    maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://repo.codemc.org/repository/maven-public")
     maven("https://repo.spongepowered.org/maven")
 }
 
@@ -32,8 +32,8 @@ dependencies {
     implementation("org.spongepowered:configurate-hocon:$configurateVersion") {
         exclude(module = "guava")
     }
-    implementation("org.bstats:bstats-bukkit:$bstatsVersion")
-    implementation("org.bstats:bstats-bungeecord:$bstatsVersion")
+    implementation("org.bstats:bstats-bukkit-lite:$bstatsVersion")
+    implementation("org.bstats:bstats-bungeecord-lite:$bstatsVersion")
 
     compileOnly("io.github.waterfallmc:waterfall-api:$waterfallApiVersion")
     compileOnly("com.destroystokyo.paper:paper-api:$paperApiVersion")
@@ -56,6 +56,7 @@ bukkit {
     main = "eu.mikroskeem.adminchatter.bukkit.AdminchatterPlugin"
     description = "An adminchat plugin"
     authors = listOf("mikroskeem")
+    apiVersion = "1.13"
 
     commands {
         create("adminchatter") {

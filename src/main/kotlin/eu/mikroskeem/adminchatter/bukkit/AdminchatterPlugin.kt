@@ -37,7 +37,7 @@ import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
 import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
-import org.bstats.bukkit.Metrics
+import org.bstats.bukkit.MetricsLite
 import org.bukkit.command.Command
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
@@ -57,7 +57,7 @@ class AdminchatterPlugin: JavaPlugin() {
 
     override fun onEnable() {
         server.scheduler.runTaskAsynchronously(this, Runnable {
-            Metrics(this)
+            MetricsLite(this)
         })
 
         if(server.spigot().spigotConfig.getBoolean("settings.bungeecord", false)) {

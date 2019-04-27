@@ -40,7 +40,7 @@ import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import net.md_5.bungee.api.plugin.Command
 import net.md_5.bungee.api.plugin.Plugin
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
-import org.bstats.bungeecord.Metrics
+import org.bstats.bungeecord.MetricsLite
 
 /**
  * Adminchatter plugin
@@ -77,7 +77,7 @@ class AdminchatterPlugin: Plugin() {
         registerListener(ChatListener::class)
 
         proxy.scheduler.runAsync(this) {
-            Metrics(this)
+            MetricsLite(this)
         }
     }
 
