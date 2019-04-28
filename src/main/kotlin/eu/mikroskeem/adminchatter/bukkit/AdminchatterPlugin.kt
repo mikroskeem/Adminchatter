@@ -43,6 +43,7 @@ import org.bukkit.command.Command
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.LinkedList
+import java.util.Locale
 
 /**
  * @author Mark Vainomaa
@@ -102,8 +103,8 @@ class AdminchatterPlugin: JavaPlugin() {
             // Register commands
             val chatCommand = AdminchatterChatCommand(channel).apply { registeredCommands.add(this) }
             val toggleCommand = AdminchatterToggleCommand(channel).apply { registeredCommands.add(this) }
-            server.commandMap.register("adminchatter", chatCommand)
-            server.commandMap.register("adminchatter", toggleCommand)
+            server.commandMap.register(name.toLowerCase(Locale.ENGLISH), chatCommand)
+            server.commandMap.register(name.toLowerCase(Locale.ENGLISH), toggleCommand)
         }
 
         // Send updated commands list to online players
