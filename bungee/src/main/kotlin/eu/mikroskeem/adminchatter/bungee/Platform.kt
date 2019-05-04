@@ -23,78 +23,41 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.common.platform
+package eu.mikroskeem.adminchatter.bungee
 
 import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
+import eu.mikroskeem.adminchatter.common.platform.Platform
+import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
+import eu.mikroskeem.adminchatter.common.platform.PlatformSender
+import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
+import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.ProxyServer
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.connection.ProxiedPlayer
-import kotlin.properties.Delegates
+import net.md_5.bungee.api.connection.Server
+import net.md_5.bungee.api.plugin.Cancellable
 
 /**
  * @author Mark Vainomaa
  */
-var currentPlatform: Platform by Delegates.notNull()
-    internal set
-val config: AdminchatterConfig get() = currentPlatform.config
-
-interface Platform {
-    val onlinePlayers: Collection<PlatformSender>
-    val isBungee: Boolean
-    val consoleSender: PlatformSender
-    val config: AdminchatterConfig
-}
-
-interface PlatformSender {
-    val base: Any
-    val name: String
-    fun sendMessage(vararg components: BaseComponent)
-    fun hasPermission(node: String): Boolean
-    val isConsole: Boolean
-}
-
-interface PlatformEvent {
-    var isCancelled: Boolean
-}
-
-inline class BungeePlatform(private val plugin: eu.mikroskeem.adminchatter.bungee.AdminchatterPlugin): Platform {
+inline class BungeePlatform(private val plugin: AdminchatterPlugin): Platform {
     override val onlinePlayers: Collection<PlatformSender> get() = plugin.proxy.players.map { BungeePlatformSender(it) }
     override val isBungee: Boolean get() = true
     override val consoleSender: PlatformSender get() = BungeePlatformSender(plugin.proxy.console)
     override val config: AdminchatterConfig get() = plugin.configLoader.configuration
 }
 
-inline class BukkitPlatform(private val plugin: eu.mikroskeem.adminchatter.bukkit.AdminchatterPlugin): Platform {
-    override val onlinePlayers: Collection<PlatformSender> get() = plugin.server.onlinePlayers.map { BukkitPlatformSender(it) }
-    override val isBungee: Boolean get() = false
-    override val consoleSender: PlatformSender get() = BukkitPlatformSender(plugin.server.consoleSender)
-    override val config: AdminchatterConfig get() = plugin.configLoader.configuration
-}
-
-inline class BungeePlatformSender(val sender: net.md_5.bungee.api.CommandSender): PlatformSender {
+inline class BungeePlatformSender(val sender: CommandSender): PlatformSender {
     override val base: Any get() = sender
     override val name: String get() = sender.name
     override fun sendMessage(vararg components: BaseComponent) = sender.sendMessage(*components)
     override fun hasPermission(node: String): Boolean = sender.hasPermission(node)
     override val isConsole: Boolean get() = sender === ProxyServer.getInstance().console
-    val server: net.md_5.bungee.api.connection.Server? get() = (sender as? ProxiedPlayer)?.server
+    override val serverName: String get() = (sender as? ProxiedPlayer)?.server?.info?.name ?: ""
+    override fun playSound(soundData: ByteArray) { (sender as? ProxiedPlayer)?.server?.sendData(PLUGIN_CHANNEL_SOUND, soundData) }
 }
 
-inline class BukkitPlatformSender(val sender: org.bukkit.command.CommandSender): PlatformSender {
-    override val base: Any get() = sender
-    override val name: String get() = sender.name
-    override fun sendMessage(vararg components: BaseComponent) = sender.sendMessage(*components)
-    override fun hasPermission(node: String): Boolean = sender.hasPermission(node)
-    override val isConsole: Boolean get() = sender === sender.server.consoleSender
-}
-
-inline class BungeeEvent(private val event: net.md_5.bungee.api.plugin.Cancellable): PlatformEvent {
-    override var isCancelled: Boolean
-        get() = event.isCancelled
-        set(value) { event.isCancelled = value }
-}
-
-inline class BukkitEvent(private val event: org.bukkit.event.Cancellable): PlatformEvent {
+inline class BungeeEvent(private val event: Cancellable): PlatformEvent {
     override var isCancelled: Boolean
         get() = event.isCancelled
         set(value) { event.isCancelled = value }

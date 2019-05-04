@@ -27,7 +27,6 @@ package eu.mikroskeem.adminchatter.bungee
 
 import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
-import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.sendChannelChat
 import eu.mikroskeem.adminchatter.common.utils.ADMINCHATTER_COMMAND_PERMISSION

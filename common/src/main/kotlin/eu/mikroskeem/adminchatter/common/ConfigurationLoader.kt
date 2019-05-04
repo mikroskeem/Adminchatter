@@ -25,6 +25,8 @@
 
 package eu.mikroskeem.adminchatter.common
 
+import com.google.common.reflect.TypeToken
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import ninja.leaping.configurate.ConfigurationOptions
 import ninja.leaping.configurate.commented.CommentedConfigurationNode
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader
@@ -32,6 +34,7 @@ import ninja.leaping.configurate.loader.ConfigurationLoader
 import ninja.leaping.configurate.loader.HeaderMode
 import ninja.leaping.configurate.objectmapping.ObjectMapper
 import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Locale
@@ -110,5 +113,11 @@ class ConfigurationLoader<T: Any>(
     fun save() {
         mapper.serialize(baseNode.getNode(baseNodeName))
         loader.save(baseNode)
+    }
+
+    companion object {
+        init {
+            TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelCommandInfo::class.java), ChannelCommandInfo)
+        }
     }
 }

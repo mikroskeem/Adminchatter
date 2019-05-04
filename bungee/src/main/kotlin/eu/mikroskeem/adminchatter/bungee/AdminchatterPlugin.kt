@@ -23,51 +23,36 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.bukkit
+package eu.mikroskeem.adminchatter.bungee
 
-import com.google.common.reflect.TypeToken
 import eu.mikroskeem.adminchatter.common.ConfigurationLoader
 import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
 import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
-import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
-import eu.mikroskeem.adminchatter.common.platform.BukkitPlatform
+import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
-import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
-import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
 import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
-import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers
-import org.bstats.bukkit.MetricsLite
-import org.bukkit.command.Command
-import org.bukkit.entity.Player
-import org.bukkit.plugin.java.JavaPlugin
-import java.util.LinkedList
-import java.util.Locale
+import net.md_5.bungee.api.plugin.Command
+import net.md_5.bungee.api.plugin.Plugin
+import org.bstats.bungeecord.MetricsLite
 
 /**
+ * Adminchatter plugin
+ *
  * @author Mark Vainomaa
  */
-class AdminchatterPlugin: JavaPlugin() {
-    private val registeredCommands = LinkedList<Command>()
+class AdminchatterPlugin: Plugin() {
     lateinit var configLoader: ConfigurationLoader<AdminchatterConfig>
         private set
 
+    private val registeredCommands = ArrayList<Command>()
+
     override fun onLoad() {
-        currentPlatform = BukkitPlatform(this)
+        currentPlatform = BungeePlatform(this)
     }
 
     override fun onEnable() {
-        server.scheduler.runTaskAsynchronously(this, Runnable {
-            MetricsLite(this)
-        })
-
-        if(server.spigot().spigotConfig.getBoolean("settings.bungeecord", false)) {
-            logger.info("BungeeCord mode - listening for sound notification messages")
-            server.messenger.registerIncomingPluginChannel(this, PLUGIN_CHANNEL_SOUND, this::processMessage)
-            return
-        }
-
         configLoader = ConfigurationLoader(
                 dataFolder.toPath().resolve("config.cfg"),
                 AdminchatterConfig::class.java,
@@ -82,47 +67,33 @@ class AdminchatterPlugin: JavaPlugin() {
             e.printStackTrace()
         }
 
-        registerListener<ChatListener>()
-        registerCommand<AdminchatterCommand>("adminchatter")
         setupChannels()
+        registerCommand(AdminchatterCommand::class)
+        registerListener(ChatListener::class)
+
+        eu.mikroskeem.adminchatter.bungee.proxy.scheduler.runAsync(this) {
+            MetricsLite(this)
+        }
     }
 
     fun setupChannels() {
         // Clean up channels and unregister commands
         channelsByName.clear()
         channelsByChatPrefix.clear()
-        registeredCommands.forEach { it.unregister(server.commandMap) }
+
+        if(registeredCommands.isNotEmpty())
+            registeredCommands.forEach(eu.mikroskeem.adminchatter.bungee.proxy.pluginManager::unregisterCommand)
 
         // Register new channels and commands
-        eu.mikroskeem.adminchatter.common.platform.config.channels.forEach { channel ->
+        config.channels.forEach { channel ->
             // TODO: validate channel info here
 
             channelsByName[channel.channelName] = channel
             channelsByChatPrefix[channel.messagePrefix] = channel
 
             // Register commands
-            val chatCommand = AdminchatterChatCommand(channel).apply { registeredCommands.add(this) }
-            val toggleCommand = AdminchatterToggleCommand(channel).apply { registeredCommands.add(this) }
-            server.commandMap.register(name.toLowerCase(Locale.ENGLISH), chatCommand)
-            server.commandMap.register(name.toLowerCase(Locale.ENGLISH), toggleCommand)
-        }
-
-        // Send updated commands list to online players
-        server.onlinePlayers.forEach {
-            it.updateCommands()
-        }
-    }
-
-    private fun processMessage(channel: String, player: Player, data: ByteArray) {
-        if(channel != PLUGIN_CHANNEL_SOUND)
-            return
-
-        player.playSound(String(data))
-    }
-
-    companion object {
-        init {
-            TypeSerializers.getDefaultSerializers().registerType(TypeToken.of(ChannelCommandInfo::class.java), ChannelCommandInfo)
+            registeredCommands.add(registerCommand(AdminchatCommand(channel)))
+            registeredCommands.add(registerCommand(AdminchatToggleCommand(channel)))
         }
     }
 }

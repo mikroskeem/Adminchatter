@@ -23,24 +23,36 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.bukkit
+package eu.mikroskeem.adminchatter.common.platform
 
-import eu.mikroskeem.adminchatter.common.handleToggleChat
-import eu.mikroskeem.adminchatter.common.platform.BukkitEvent
-import eu.mikroskeem.adminchatter.common.platform.BukkitPlatformSender
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
-import org.bukkit.event.player.AsyncPlayerChatEvent
+import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
+import net.md_5.bungee.api.chat.BaseComponent
+import kotlin.properties.Delegates
 
 /**
  * @author Mark Vainomaa
  */
-class ChatListener: Listener {
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    fun on(event: AsyncPlayerChatEvent) {
-        val player = BukkitPlatformSender(event.player)
+var currentPlatform: Platform by Delegates.notNull()
+val config: AdminchatterConfig get() = currentPlatform.config
 
-        handleToggleChat(BukkitEvent(event), player, event.message)
-    }
+interface Platform {
+    val onlinePlayers: Collection<PlatformSender>
+    val isBungee: Boolean
+    val consoleSender: PlatformSender
+    val config: AdminchatterConfig
+}
+
+interface PlatformSender {
+    val base: Any
+    val name: String
+    fun sendMessage(vararg components: BaseComponent)
+    fun hasPermission(node: String): Boolean
+    val isConsole: Boolean
+
+    val serverName: String get() = ""
+    fun playSound(soundData: ByteArray)
+}
+
+interface PlatformEvent {
+    var isCancelled: Boolean
 }

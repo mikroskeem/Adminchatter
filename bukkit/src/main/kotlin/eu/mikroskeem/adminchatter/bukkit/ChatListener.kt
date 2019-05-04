@@ -25,24 +25,20 @@
 
 package eu.mikroskeem.adminchatter.bukkit
 
-import eu.mikroskeem.adminchatter.common.platform.BukkitPlatformSender
-import eu.mikroskeem.adminchatter.common.platform.config
-import eu.mikroskeem.adminchatter.common.utils.passMessage
-import org.bukkit.command.Command
-import org.bukkit.command.CommandExecutor
-import org.bukkit.command.CommandSender
+import eu.mikroskeem.adminchatter.common.handleToggleChat
+import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerChatEvent
 
 /**
  * @author Mark Vainomaa
  */
-class AdminchatterCommand: CommandExecutor {
-    override fun onCommand(_sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
-        val sender = BukkitPlatformSender(_sender)
+class ChatListener: Listener {
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    fun on(event: AsyncPlayerChatEvent) {
+        val player = BukkitPlatformSender(event.player)
 
-        plugin.configLoader.load()
-        plugin.configLoader.save()
-        plugin.setupChannels()
-        sender.passMessage(config.messages.pluginConfigurationReloaded)
-        return true
+        handleToggleChat(BukkitEvent(event), player, event.message)
     }
 }

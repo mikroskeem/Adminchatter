@@ -26,8 +26,6 @@
 package eu.mikroskeem.adminchatter.bungee
 
 import eu.mikroskeem.adminchatter.common.handleToggleChat
-import eu.mikroskeem.adminchatter.common.platform.BungeeEvent
-import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
 import net.md_5.bungee.api.connection.ProxiedPlayer
 import net.md_5.bungee.api.event.ChatEvent
 import net.md_5.bungee.api.plugin.Listener

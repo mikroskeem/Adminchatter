@@ -25,22 +25,17 @@
 
 package eu.mikroskeem.adminchatter.common
 
-import eu.mikroskeem.adminchatter.bukkit.playSound
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
-import eu.mikroskeem.adminchatter.common.platform.BukkitPlatformSender
-import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
 import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
-import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import eu.mikroskeem.adminchatter.common.utils.replacePlaceholders
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
-import org.bukkit.entity.Player
 
 /**
  * @author Mark Vainomaa
@@ -55,7 +50,7 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
 
     val chatFormat = info.messageFormat.takeUnless { it.isEmpty() } ?: return // User did not set chat format, don't process anything
     val senderName = if(isConsole) (config.consoleName.takeUnless { it.isEmpty() } ?: name) else name
-    val serverName = if(this is BungeePlatformSender) server?.info?.name else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
+    val serverName = if(currentPlatform.isBungee) serverName else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
 
     // Start building chat component
     val baseComponent = TextComponent()
@@ -88,8 +83,7 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     val sound: ByteArray? = info.soundEffect.takeIf { it.isNotEmpty() }?.toByteArray()
     currentPlatform.onlinePlayers.filter { it.hasPermission(BASE_CHAT_PERMISSION + info.channelName) }.forEach {
         sound?.run {
-            (it as? BungeePlatformSender)?.server?.sendData(PLUGIN_CHANNEL_SOUND, this)
-            ((it as? BukkitPlatformSender)?.sender as? Player)?.playSound(String(sound)) // Bad
+            it.playSound(sound)
         }
         it.sendMessage(baseComponent)
     }

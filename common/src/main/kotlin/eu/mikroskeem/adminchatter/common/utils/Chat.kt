@@ -26,10 +26,8 @@
 package eu.mikroskeem.adminchatter.common.utils
 
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
-import eu.mikroskeem.adminchatter.common.platform.BungeePlatformSender
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.platform.config
-import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.TextComponent
 import java.lang.reflect.Field
@@ -56,19 +54,13 @@ fun String.replacePlaceholders(playerName: String? = null,
 fun String.colored(): String = ChatColor.translateAlternateColorCodes('&', this)
 
 fun PlatformSender.passMessage(message: String, channel: ChannelCommandInfo? = null) {
-    val serverName = if(currentPlatform.isBungee) {
-        (this as? BungeePlatformSender)?.server?.info?.name
-    } else {
-        ""
-    }
-
     sendMessage(*TextComponent.fromLegacyText(message.replacePlaceholders(name, message, serverName, channel?.prettyChannelName)))
 }
 
 // Better pattern for url handling
 val betterUrlPattern: Pattern = Pattern.compile("^(?:(https?)://)?([-\\w_\\.]+\\.[a-z]{2,})(/\\S*)?$")
 
-internal fun injectBetterUrlPattern() {
+fun injectBetterUrlPattern() {
     val field = TextComponent::class.java.getDeclaredField("url").apply { isAccessible = true }
     Field::class.java.getDeclaredField("modifiers").apply { isAccessible = true }
             .set(field, field.modifiers and Modifier.FINAL.inv())
