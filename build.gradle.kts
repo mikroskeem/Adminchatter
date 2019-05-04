@@ -7,8 +7,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "5.0.0"
 }
 
-group = "eu.mikroskeem"
-version = "0.0.11-SNAPSHOT"
+
 
 extra["paperApiVersion"] = "1.13.2-R0.1-SNAPSHOT"
 extra["waterfallApiVersion"] = "1.13-SNAPSHOT"
@@ -16,6 +15,9 @@ extra["configurateVersion"] = "3.7-SNAPSHOT"
 extra["bstatsVersion"] = "1.4"
 
 allprojects {
+    group = "eu.mikroskeem"
+    version = "0.0.11-SNAPSHOT"
+
     repositories {
         mavenLocal()
         mavenCentral()
