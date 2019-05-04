@@ -35,7 +35,6 @@ subprojects {
     val compileKotlin by tasks.getting(KotlinCompile::class) {
         kotlinOptions {
             jvmTarget = "1.8"
-            freeCompilerArgs = listOf("-XXLanguage:+InlineClasses")
         }
     }
 

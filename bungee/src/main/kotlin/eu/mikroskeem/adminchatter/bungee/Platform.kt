@@ -34,20 +34,19 @@ import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.ProxyServer
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.connection.ProxiedPlayer
-import net.md_5.bungee.api.connection.Server
 import net.md_5.bungee.api.plugin.Cancellable
 
 /**
  * @author Mark Vainomaa
  */
-inline class BungeePlatform(private val plugin: AdminchatterPlugin): Platform {
+class BungeePlatform(private val plugin: AdminchatterPlugin): Platform {
     override val onlinePlayers: Collection<PlatformSender> get() = plugin.proxy.players.map { BungeePlatformSender(it) }
     override val isBungee: Boolean get() = true
     override val consoleSender: PlatformSender get() = BungeePlatformSender(plugin.proxy.console)
     override val config: AdminchatterConfig get() = plugin.configLoader.configuration
 }
 
-inline class BungeePlatformSender(val sender: CommandSender): PlatformSender {
+class BungeePlatformSender(val sender: CommandSender): PlatformSender {
     override val base: Any get() = sender
     override val name: String get() = sender.name
     override fun sendMessage(vararg components: BaseComponent) = sender.sendMessage(*components)
@@ -57,7 +56,7 @@ inline class BungeePlatformSender(val sender: CommandSender): PlatformSender {
     override fun playSound(soundData: ByteArray) { (sender as? ProxiedPlayer)?.server?.sendData(PLUGIN_CHANNEL_SOUND, soundData) }
 }
 
-inline class BungeeEvent(private val event: Cancellable): PlatformEvent {
+class BungeeEvent(private val event: Cancellable): PlatformEvent {
     override var isCancelled: Boolean
         get() = event.isCancelled
         set(value) { event.isCancelled = value }

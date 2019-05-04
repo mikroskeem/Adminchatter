@@ -37,14 +37,14 @@ import org.bukkit.event.Cancellable
 /**
  * @author Mark Vainomaa
  */
-inline class BukkitPlatform(private val plugin: AdminchatterPlugin): Platform {
+class BukkitPlatform(private val plugin: AdminchatterPlugin): Platform {
     override val onlinePlayers: Collection<PlatformSender> get() = plugin.server.onlinePlayers.map { BukkitPlatformSender(it) }
     override val isBungee: Boolean get() = false
     override val consoleSender: PlatformSender get() = BukkitPlatformSender(plugin.server.consoleSender)
     override val config: AdminchatterConfig get() = plugin.configLoader.configuration
 }
 
-inline class BukkitPlatformSender(val sender: CommandSender): PlatformSender {
+class BukkitPlatformSender(val sender: CommandSender): PlatformSender {
     override val base: Any get() = sender
     override val name: String get() = sender.name
     override fun sendMessage(vararg components: BaseComponent) = sender.sendMessage(*components)
@@ -53,7 +53,7 @@ inline class BukkitPlatformSender(val sender: CommandSender): PlatformSender {
     override fun playSound(soundData: ByteArray) { (sender as? Player)?.playSound(String(soundData)) }
 }
 
-inline class BukkitEvent(private val event: Cancellable): PlatformEvent {
+class BukkitEvent(private val event: Cancellable): PlatformEvent {
     override var isCancelled: Boolean
         get() = event.isCancelled
         set(value) { event.isCancelled = value }
