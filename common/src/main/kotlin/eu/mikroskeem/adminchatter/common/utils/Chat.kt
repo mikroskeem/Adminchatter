@@ -28,8 +28,8 @@ package eu.mikroskeem.adminchatter.common.utils
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.platform.config
-import net.md_5.bungee.api.ChatColor
-import net.md_5.bungee.api.chat.TextComponent
+import net.kyori.text.TextComponent
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 import java.util.regex.Pattern
@@ -51,10 +51,10 @@ fun String.replacePlaceholders(playerName: String? = null,
             .replace("{pretty_server_name}", serverName?.run(config.prettyServerNames::get)?.colored() ?: serverName ?: "")
 }
 
-fun String.colored(): String = ChatColor.translateAlternateColorCodes('&', this)
+fun String.colored(): String = this.replace('&', '§') // TODO: less safe than ChatColor utility
 
 fun PlatformSender.passMessage(message: String, channel: ChannelCommandInfo? = null) {
-    sendMessage(*TextComponent.fromLegacyText(message.replacePlaceholders(name, message, serverName, channel?.prettyChannelName)))
+    sendMessage(LegacyComponentSerializer.INSTANCE.deserialize(message.replacePlaceholders(name, message, serverName, channel?.prettyChannelName)))
 }
 
 // Better pattern for url handling

@@ -33,9 +33,10 @@ import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import eu.mikroskeem.adminchatter.common.utils.replacePlaceholders
-import net.md_5.bungee.api.chat.ClickEvent
-import net.md_5.bungee.api.chat.HoverEvent
-import net.md_5.bungee.api.chat.TextComponent
+import net.kyori.text.TextComponent
+import net.kyori.text.event.ClickEvent
+import net.kyori.text.event.HoverEvent
+import net.kyori.text.serializer.legacy.LegacyComponentSerializer
 
 /**
  * @author Mark Vainomaa
@@ -53,31 +54,37 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     val serverName = if(currentPlatform.isBungee) serverName else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
 
     // Start building chat component
-    val baseComponent = TextComponent()
+    val buildableComponent = TextComponent.builder("")
 
     // Build hover event
     info.messageHoverText.takeUnless { it.isEmpty() }?.run {
         val text = this.replacePlaceholders(senderName, message, serverName, info.channelName)
-        baseComponent.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(text))
+        buildableComponent.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.INSTANCE.deserialize(text)))
     }
 
     // Build command event
     info.clickCommand.takeUnless { it.isEmpty() }?.run {
         val command = this.replacePlaceholders(senderName, message, serverName, info.channelName)
-        baseComponent.clickEvent = ClickEvent(ClickEvent.Action.RUN_COMMAND, command)
+        buildableComponent.clickEvent(ClickEvent.of(ClickEvent.Action.RUN_COMMAND, command))
     }
 
     // Add remaining text
-    TextComponent.fromLegacyText(chatFormat.replacePlaceholders(senderName, message, serverName, info.channelName)).forEach {
-        baseComponent.addExtra(it)
-    }
+    buildableComponent.append(LegacyComponentSerializer.INSTANCE.deserialize(
+            chatFormat.replacePlaceholders(senderName, message, serverName, info.channelName),
+            '§'
+    ))
 
     // Replace url components hover text
     config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.let { urlText ->
-        baseComponent.extra.filter { it.clickEvent?.action == ClickEvent.Action.OPEN_URL }.forEach {
-            it.hoverEvent = HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(urlText))
+        buildableComponent.applyDeep { component ->
+            val textComponent = component as? TextComponent.Builder ?: return@applyDeep
+            if(textComponent.build().clickEvent()?.action() == ClickEvent.Action.OPEN_URL) {
+                textComponent.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.INSTANCE.deserialize(urlText)))
+            }
         }
     }
+
+    val component = buildableComponent.build()
 
     // Send message
     val sound: ByteArray? = info.soundEffect.takeIf { it.isNotEmpty() }?.toByteArray()
@@ -85,12 +92,12 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
         sound?.run {
             it.playSound(sound)
         }
-        it.sendMessage(baseComponent)
+        it.sendMessage(component)
     }
 
     // Send message to console as well, if configured so
     if(config.allowConsoleUsage)
-        currentPlatform.consoleSender.sendMessage(baseComponent)
+        currentPlatform.consoleSender.sendMessage(component)
 }
 
 // Handles chat events

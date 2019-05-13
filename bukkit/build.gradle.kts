@@ -7,6 +7,10 @@ plugins {
 dependencies {
     implementation(project(":common"))
     implementation("org.bstats:bstats-bukkit-lite:${rootProject.extra["bstatsVersion"]}")
+    implementation("net.kyori:text-adapter-bukkit:${rootProject.extra["kyoriTextVersion"]}") {
+        exclude(module = "spigot-api")
+        exclude(module = "gson")
+    }
     compileOnly("com.destroystokyo.paper:paper-api:${rootProject.extra["paperApiVersion"]}")
 }
 

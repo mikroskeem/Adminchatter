@@ -13,6 +13,7 @@ extra["paperApiVersion"] = "1.13.2-R0.1-SNAPSHOT"
 extra["waterfallApiVersion"] = "1.13-SNAPSHOT"
 extra["configurateVersion"] = "3.7-SNAPSHOT"
 extra["bstatsVersion"] = "1.4"
+extra["kyoriTextVersion"] = "3.0.0"
 
 allprojects {
     group = "eu.mikroskeem"
@@ -40,7 +41,8 @@ subprojects {
 
     dependencies {
         implementation(kotlin("stdlib-jdk8"))
-        compileOnly("io.github.waterfallmc:waterfall-chat:${rootProject.extra["waterfallApiVersion"]}")
+        implementation("net.kyori:text-api:${rootProject.extra["kyoriTextVersion"]}")
+        implementation("net.kyori:text-serializer-legacy:${rootProject.extra["kyoriTextVersion"]}")
     }
 
     license {
@@ -59,7 +61,8 @@ val shadowJar by tasks.getting(ShadowJar::class) {
             "kotlin",
             "com.typesafe.config",
             "ninja.leaping.configurate",
-            "org.bstats"
+            "org.bstats",
+            "net.kyori.text"
     )
     val targetPackage = "eu.mikroskeem.adminchatter.lib"
 

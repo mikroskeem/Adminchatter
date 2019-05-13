@@ -5,6 +5,7 @@ plugins {
 dependencies {
     implementation(project(":common"))
     implementation("org.bstats:bstats-bungeecord-lite:${rootProject.extra["bstatsVersion"]}")
+    implementation("net.kyori:text-adapter-bungeecord:${rootProject.extra["kyoriTextVersion"]}")
     compileOnly("io.github.waterfallmc:waterfall-api:${rootProject.extra["waterfallApiVersion"]}")
 }
 

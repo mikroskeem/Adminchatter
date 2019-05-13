@@ -30,7 +30,7 @@ import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.eventBus
 import eu.mikroskeem.adminchatter.common.events.ChannelToggleEvent
-import net.md_5.bungee.api.chat.BaseComponent
+import net.kyori.text.Component
 import kotlin.properties.Delegates
 
 /**
@@ -53,7 +53,7 @@ interface Platform {
 interface PlatformSender {
     val base: Any
     val name: String
-    fun sendMessage(vararg components: BaseComponent)
+    fun sendMessage(component: Component)
     fun hasPermission(node: String): Boolean
     val isConsole: Boolean
     var currentChannel: ChannelCommandInfo?
