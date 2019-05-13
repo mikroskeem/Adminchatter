@@ -71,4 +71,11 @@ class Messages {
             "Set empty to disable this feature and use same hover event as surrounding text does.")
     var urlHoverText = "&eClick to open an URL"
         private set
+
+    @Setting(value = "currently-in-a-channel", comment = "This is shown on actionbar constantly to show players what adminchat channel they are talking in.\n" +
+            "Available placeholders:\n" +
+            "- {channel_name}\n" +
+            "- {pretty_channel_name}")
+    var currentlyInAChannel = "&c&m---&r &7Currently talking in a channel: &c{pretty_channel_name}&r &c&m---&r"
+        private set
 }

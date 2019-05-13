@@ -28,6 +28,7 @@ package eu.mikroskeem.adminchatter.bukkit
 import eu.mikroskeem.adminchatter.bukkit.commands.AdminchatterChatCommand
 import eu.mikroskeem.adminchatter.bukkit.commands.AdminchatterCommand
 import eu.mikroskeem.adminchatter.bukkit.commands.AdminchatterToggleCommand
+import eu.mikroskeem.adminchatter.bukkit.listeners.ChannelListener
 import eu.mikroskeem.adminchatter.bukkit.listeners.ChatListener
 import eu.mikroskeem.adminchatter.common.ConfigurationLoader
 import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
@@ -83,6 +84,7 @@ class AdminchatterPlugin: JavaPlugin() {
 
         registerListener<ChatListener>()
         registerCommand<AdminchatterCommand>("adminchatter")
+        currentPlatform.registerInternalListener(ChannelListener())
         setupChannels()
     }
 
