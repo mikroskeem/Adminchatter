@@ -99,9 +99,9 @@ fun handleToggleChat(event: PlatformEvent, sender: PlatformSender, chatMessage: 
 
     // Figure out what channel is player in and check if player has channel toggle
     var wasToggle = false
-    val channel: ChannelCommandInfo = if(adminchatTogglePlayers[sender.base] != null) {
+    val channel: ChannelCommandInfo = if(sender.currentChannel != null) {
         wasToggle = true
-        adminchatTogglePlayers[sender.base]!!
+        sender.currentChannel!!
     } else {
         // Find channel by prefix what sender is using, or return
         channelsByChatPrefix.filterKeys { message.startsWith(it) }

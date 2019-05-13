@@ -25,7 +25,9 @@
 
 package eu.mikroskeem.adminchatter.common.platform
 
+import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import net.md_5.bungee.api.chat.BaseComponent
 import kotlin.properties.Delegates
 
@@ -48,7 +50,15 @@ interface PlatformSender {
     fun sendMessage(vararg components: BaseComponent)
     fun hasPermission(node: String): Boolean
     val isConsole: Boolean
-
+    var currentChannel: ChannelCommandInfo?
+        get() = adminchatTogglePlayers[base]
+        set(value) {
+            if(value == null) {
+                adminchatTogglePlayers.remove(base)
+            } else {
+                adminchatTogglePlayers[base] = value
+            }
+        }
     val serverName: String get() = ""
     fun playSound(soundData: ByteArray)
 }

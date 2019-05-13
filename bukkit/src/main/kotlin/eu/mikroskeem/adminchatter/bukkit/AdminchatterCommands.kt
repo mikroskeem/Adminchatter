@@ -25,7 +25,6 @@
 
 package eu.mikroskeem.adminchatter.bukkit
 
-import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.sendChannelChat
@@ -77,24 +76,24 @@ class AdminchatterToggleCommand(private val info: ChannelCommandInfo): Command(i
         }
 
         // Get player's current channel
-        val currentChannel = adminchatTogglePlayers[platformSender.base]
+        val currentChannel = platformSender.currentChannel
 
         // If player has no channel
         when {
             currentChannel == null -> {
-                adminchatTogglePlayers[platformSender.base] = info
+                platformSender.currentChannel = info
                 platformSender.passMessage(config.messages.toggledOn, info)
             }
 
             currentChannel.channelName == info.channelName -> {
                 // If toggled channel equals to one representing a command, untoggle
-                adminchatTogglePlayers.remove(platformSender.base)
+                platformSender.currentChannel = null
                 platformSender.passMessage(config.messages.toggledOff, info)
             }
 
             else -> {
                 // If toggled channel is not same as one representing a command, switch channel
-                adminchatTogglePlayers[platformSender.base] = info
+                platformSender.currentChannel = info
                 platformSender.passMessage(config.messages.channelSwitched, info)
             }
         }
