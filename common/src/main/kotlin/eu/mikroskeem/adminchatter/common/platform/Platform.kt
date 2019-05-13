@@ -28,6 +28,8 @@ package eu.mikroskeem.adminchatter.common.platform
 import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import eu.mikroskeem.adminchatter.common.eventBus
+import eu.mikroskeem.adminchatter.common.events.ChannelToggleEvent
 import net.md_5.bungee.api.chat.BaseComponent
 import kotlin.properties.Delegates
 
@@ -42,6 +44,10 @@ interface Platform {
     val isBungee: Boolean
     val consoleSender: PlatformSender
     val config: AdminchatterConfig
+
+    fun registerInternalListener(listener: Any) {
+        eventBus.register(listener)
+    }
 }
 
 interface PlatformSender {
@@ -53,6 +59,9 @@ interface PlatformSender {
     var currentChannel: ChannelCommandInfo?
         get() = adminchatTogglePlayers[base]
         set(value) {
+            val previousChannel = adminchatTogglePlayers[base]
+            eventBus.post(ChannelToggleEvent(this, previousChannel, value))
+
             if(value == null) {
                 adminchatTogglePlayers.remove(base)
             } else {

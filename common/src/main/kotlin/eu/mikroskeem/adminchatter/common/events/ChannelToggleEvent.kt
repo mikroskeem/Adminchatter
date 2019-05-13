@@ -23,16 +23,21 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.common
+package eu.mikroskeem.adminchatter.common.events
 
-import com.google.common.eventbus.EventBus
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
-import java.util.WeakHashMap
+import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 
 /**
  * @author Mark Vainomaa
  */
-val eventBus = EventBus()
-val channelsByName = HashMap<String, ChannelCommandInfo>()
-val channelsByChatPrefix = HashMap<String, ChannelCommandInfo>()
-val adminchatTogglePlayers = WeakHashMap<Any, ChannelCommandInfo>()
+data class ChannelToggleEvent(
+        // Sender who toggled the channel
+        val sender: PlatformSender,
+
+        // From channel. Null if player didn't have a channel before
+        val fromChannel: ChannelCommandInfo?,
+
+        // To channel. Null if player untoggles a channel
+        val toChannel: ChannelCommandInfo?
+)
