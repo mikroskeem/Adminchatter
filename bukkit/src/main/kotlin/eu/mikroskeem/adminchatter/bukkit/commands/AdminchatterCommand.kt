@@ -23,28 +23,27 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.bungee
+package eu.mikroskeem.adminchatter.bukkit.commands
 
-import eu.mikroskeem.adminchatter.common.handleToggleChat
-import net.md_5.bungee.api.connection.ProxiedPlayer
-import net.md_5.bungee.api.event.ChatEvent
-import net.md_5.bungee.api.plugin.Listener
-import net.md_5.bungee.event.EventHandler
-import net.md_5.bungee.event.EventPriority
+import eu.mikroskeem.adminchatter.bukkit.BukkitPlatformSender
+import eu.mikroskeem.adminchatter.bukkit.plugin
+import eu.mikroskeem.adminchatter.common.platform.config
+import eu.mikroskeem.adminchatter.common.utils.passMessage
+import org.bukkit.command.Command
+import org.bukkit.command.CommandExecutor
+import org.bukkit.command.CommandSender
 
 /**
  * @author Mark Vainomaa
  */
-class ChatListener: Listener {
-    @EventHandler(priority = EventPriority.HIGHEST)
-    fun on(event: ChatEvent) {
-        val player = BungeePlatformSender(event.sender as? ProxiedPlayer
-                ?: return)
+class AdminchatterCommand: CommandExecutor {
+    override fun onCommand(_sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
+        val sender = BukkitPlatformSender(_sender)
 
-        // Cancelled events and commands aren't useful here
-        if(event.isCancelled || event.isCommand)
-            return
-
-        handleToggleChat(BungeeEvent(event), player, event.message)
+        plugin.configLoader.load()
+        plugin.configLoader.save()
+        plugin.setupChannels()
+        sender.passMessage(config.messages.pluginConfigurationReloaded)
+        return true
     }
 }

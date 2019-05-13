@@ -25,6 +25,10 @@
 
 package eu.mikroskeem.adminchatter.bungee
 
+import eu.mikroskeem.adminchatter.bungee.commands.AdminchatCommand
+import eu.mikroskeem.adminchatter.bungee.commands.AdminchatToggleCommand
+import eu.mikroskeem.adminchatter.bungee.commands.AdminchatterCommand
+import eu.mikroskeem.adminchatter.bungee.listeners.ChatListener
 import eu.mikroskeem.adminchatter.common.ConfigurationLoader
 import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
 import eu.mikroskeem.adminchatter.common.channelsByName

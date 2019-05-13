@@ -23,8 +23,10 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.bukkit
+package eu.mikroskeem.adminchatter.bukkit.listeners
 
+import eu.mikroskeem.adminchatter.bukkit.BukkitEvent
+import eu.mikroskeem.adminchatter.bukkit.BukkitPlatformSender
 import eu.mikroskeem.adminchatter.common.handleToggleChat
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority

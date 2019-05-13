@@ -23,74 +23,82 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.bungee
+package eu.mikroskeem.adminchatter.bukkit.commands
 
+import eu.mikroskeem.adminchatter.bukkit.BukkitPlatformSender
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.sendChannelChat
-import eu.mikroskeem.adminchatter.common.utils.ADMINCHATTER_COMMAND_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.passMessage
-import net.md_5.bungee.api.CommandSender
-import net.md_5.bungee.api.connection.ProxiedPlayer
-import net.md_5.bungee.api.plugin.Command
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 
 /**
  * @author Mark Vainomaa
  */
-class AdminchatterCommand: Command("adminchatter", ADMINCHATTER_COMMAND_PERMISSION) {
-    override fun execute(_sender: CommandSender, args: Array<out String>) {
-        val sender = BungeePlatformSender(_sender)
-
-        plugin.configLoader.load()
-        plugin.configLoader.save()
-        plugin.setupChannels()
-        sender.passMessage(config.messages.pluginConfigurationReloaded)
+class AdminchatterChatCommand(private val info: ChannelCommandInfo): Command(info.commandName) {
+    init {
+        permission = BASE_CHAT_PERMISSION + info.channelName
+        aliases = info.commandAliases
     }
-}
 
-class AdminchatCommand(private val info: ChannelCommandInfo): Command(info.commandName, BASE_CHAT_PERMISSION + info.channelName, *info.commandAliases.toTypedArray()) {
-    override fun execute(_sender: CommandSender, args: Array<out String>) {
-        val sender = BungeePlatformSender(_sender)
-        if(_sender !is ProxiedPlayer && !config.allowConsoleUsage) {
-            sender.passMessage(config.messages.channelChatIsOnlyForPlayers)
-            return
+    override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
+        if(!testPermission(sender))
+            return true
+
+        val platformSender = BukkitPlatformSender(sender)
+        if(sender !is Player && !config.allowConsoleUsage) {
+            platformSender.passMessage(config.messages.channelChatIsOnlyForPlayers)
+            return true
         }
 
-        sender.sendChannelChat(info, args.joinToString(separator = " "))
+        platformSender.sendChannelChat(info, args.joinToString(separator = " "))
+
+        return true
     }
 }
 
-class AdminchatToggleCommand(private val info: ChannelCommandInfo): Command(info.toggleCommandName, BASE_CHAT_PERMISSION + info.channelName, *info.toggleCommandAliases.toTypedArray()) {
-    override fun execute(_sender: CommandSender, args: Array<out String>) {
-        val sender = BungeePlatformSender(_sender)
+class AdminchatterToggleCommand(private val info: ChannelCommandInfo): Command(info.toggleCommandName) {
+    init {
+        permission = BASE_CHAT_PERMISSION + info.channelName
+        aliases = info.toggleCommandAliases
+    }
 
-        if(_sender !is ProxiedPlayer) {
-            sender.passMessage(config.messages.togglingIsOnlyForPlayers)
-            return
+    override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
+        if(!testPermission(sender))
+            return true
+
+        val platformSender = BukkitPlatformSender(sender)
+        if(sender !is Player) {
+            platformSender.passMessage(config.messages.togglingIsOnlyForPlayers)
+            return true
         }
 
         // Get player's current channel
-        val currentChannel = sender.currentChannel
+        val currentChannel = platformSender.currentChannel
 
         // If player has no channel
         when {
             currentChannel == null -> {
-                sender.currentChannel = info
-                sender.passMessage(config.messages.toggledOn, info)
+                platformSender.currentChannel = info
+                platformSender.passMessage(config.messages.toggledOn, info)
             }
 
             currentChannel.channelName == info.channelName -> {
                 // If toggled channel equals to one representing a command, untoggle
-                sender.currentChannel = null
-                sender.passMessage(config.messages.toggledOff, info)
+                platformSender.currentChannel = null
+                platformSender.passMessage(config.messages.toggledOff, info)
             }
 
             else -> {
                 // If toggled channel is not same as one representing a command, switch channel
-                sender.currentChannel = info
-                sender.passMessage(config.messages.channelSwitched, info)
+                platformSender.currentChannel = info
+                platformSender.passMessage(config.messages.channelSwitched, info)
             }
         }
+
+        return true
     }
 }
