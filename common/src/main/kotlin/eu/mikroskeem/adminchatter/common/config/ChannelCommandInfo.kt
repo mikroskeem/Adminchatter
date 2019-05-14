@@ -79,7 +79,7 @@ data class ChannelCommandInfo(
         Set empty to disable
         Requires Adminchatter plugin to be installed on all game servers
         Format: [Sound name from Bukkit sound enum : Volume : Pitch]
-        See https://ci.destroystokyo.com/userContent/apidocs/org/bukkit/Sound.html
+        See https://papermc.io/javadocs/paper/1.13/org/bukkit/Sound.html
         """.trimIndent()
 
         // TODO: This is really really error prone
