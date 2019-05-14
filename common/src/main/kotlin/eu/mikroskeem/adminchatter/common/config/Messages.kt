@@ -80,6 +80,6 @@ class Messages {
         private set
 
     @Setting(value = "toggled-channel-does-not-exist-anymore", comment = "This message is sent when player's toggled channel disappears after plugin reload")
-    var toggledChannelDoesNotExistAnymore = "{plugin_prefix} &c&lWARNING: &cToggled channel &r{pretty_channel_name} &r&chas disappeared, untoggling"
+    var toggledChannelDoesNotExistAnymore = "{plugin_prefix} &c&lWARNING: &cToggled channel &r{channel_name} &r&chas disappeared, untoggling"
         private set
 }
