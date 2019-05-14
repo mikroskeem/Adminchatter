@@ -74,9 +74,8 @@ class Messages {
 
     @Setting(value = "currently-in-a-channel", comment = "This is shown on actionbar constantly to show players what adminchat channel they are talking in.\n" +
             "Available placeholders:\n" +
-            "- {channel_name}\n" +
-            "- {pretty_channel_name}")
-    var currentlyInAChannel = "&c&m---&r &7Currently talking in a channel: &c{pretty_channel_name}&r &c&m---&r"
+            "- {channel_name}")
+    var currentlyInAChannel = "&c&m---&r &7Currently talking in a channel: &c{channel_name}&r &c&m---&r"
         private set
 
     @Setting(value = "toggled-channel-does-not-exist-anymore", comment = "This message is sent when player's toggled channel disappears after plugin reload")

@@ -70,9 +70,9 @@ class ChannelListener {
                 return
             }
 
-            val message = (config.messages.currentlyInAChannel.takeIf { it.isNotEmpty() } ?: return).colored()
-                    .replace("{channel_name}", channel.channelName)
-                    .replace("{pretty_channel_name}", channel.prettyChannelName.colored())
+            val message = (config.messages.currentlyInAChannel.takeIf { it.isNotEmpty() } ?: return)
+                    .replace("{channel_name}", channel.prettyChannelName)
+                    .colored()
 
             player.sendActionBar(message)
         }
