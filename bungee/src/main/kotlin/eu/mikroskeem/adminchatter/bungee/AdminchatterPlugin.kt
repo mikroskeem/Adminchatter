@@ -92,10 +92,15 @@ class AdminchatterPlugin: Plugin() {
 
         // Register new channels and commands
         config.channels.forEach { channel ->
-            // TODO: validate channel info here
+            if(!channel.isValid()) {
+                logger.warning("Channel $channel is invalid! Skipping")
+                return@forEach
+            }
 
             channelsByName[channel.channelName] = channel
-            channelsByChatPrefix[channel.messagePrefix] = channel
+            if(channel.messagePrefix.isNotEmpty()) {
+                channelsByChatPrefix[channel.messagePrefix] = channel
+            }
 
             // Register commands
             registeredCommands.add(registerCommand(AdminchatCommand(channel)))

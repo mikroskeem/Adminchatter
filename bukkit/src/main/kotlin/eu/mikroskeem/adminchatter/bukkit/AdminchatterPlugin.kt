@@ -96,10 +96,15 @@ class AdminchatterPlugin: JavaPlugin() {
 
         // Register new channels and commands
         eu.mikroskeem.adminchatter.common.platform.config.channels.forEach { channel ->
-            // TODO: validate channel info here
+            if(!channel.isValid()) {
+                logger.warning("Channel $channel is invalid! Skipping")
+                return@forEach
+            }
 
             channelsByName[channel.channelName] = channel
-            channelsByChatPrefix[channel.messagePrefix] = channel
+            if(channel.messagePrefix.isNotEmpty()) {
+                channelsByChatPrefix[channel.messagePrefix] = channel
+            }
 
             // Register commands
             val chatCommand = AdminchatterChatCommand(channel).apply { registeredCommands.add(this) }

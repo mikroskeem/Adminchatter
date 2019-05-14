@@ -67,12 +67,31 @@ data class ChannelCommandInfo(
         /** Channel sound effect */
         val soundEffect: String
 ) {
+    fun isValid(): Boolean {
+        // Channel name must not contain spaces
+        if(channelName.isEmpty() || channelName.contains(' ')) {
+            return false
+        }
+
+        // Command names must not contain spaces
+        if(commandName.isEmpty() || toggleCommandName.isEmpty() || commandName.contains(' ') || toggleCommandName.contains(' ')) {
+            return false
+        }
+
+        // Ditto for aliases
+        if(commandAliases.any { it.isEmpty() || it.contains(' ') } || toggleCommandAliases.any { it.isEmpty() || it.contains(' ') }) {
+            return false
+        }
+
+        return true
+    }
+
     companion object ChannelCommandInfoSerializer: TypeSerializer<ChannelCommandInfo> {
         private val STRING_TOKEN = object: TypeToken<String>() {}
 
         private const val PREFIX_COMMENT = "If chat message starts with given prefix, then it will be " +
                 "passed to adminchat directly (however chat message sender needs to have `adminchatter.chat`" +
-                "permission for that to happen"
+                "permission for that to happen. Set empty to disable this feature"
 
         private val SOUND_COMMENT = """
         What sound should be played when player receives an adminchat message?
@@ -105,19 +124,19 @@ data class ChannelCommandInfo(
         override fun serialize(type: TypeToken<*>, instance: ChannelCommandInfo?, node: ConfigurationNode) {
             instance!!.run {
                 node.getNode("name").run {
-                    (this as? CommentedConfigurationNode)?.setComment("What should channel name be?")
+                    (this as? CommentedConfigurationNode)?.setComment("What should channel name be? Must not be empty or contain spaces")
 
                     value = channelName
                 }
 
                 node.getNode("pretty-name").run {
-                    (this as? CommentedConfigurationNode)?.setComment("What should channel pretty name be? It is used only in placeholders of plugin messages")
+                    (this as? CommentedConfigurationNode)?.setComment("What should channel pretty name be? It is used only in placeholders of plugin messages. Must not be empty")
 
                     value = prettyChannelName
                 }
 
                 node.getNode("command-name").run {
-                    (this as? CommentedConfigurationNode)?.setComment("What should be channel command name be (without slash)?")
+                    (this as? CommentedConfigurationNode)?.setComment("What should be channel command name be (without slash)? Must not be empty or contain spaces")
 
                     value = commandName
                 }
@@ -129,25 +148,25 @@ data class ChannelCommandInfo(
                 }
 
                 node.getNode("toggle-command-name").run {
-                    (this as? CommentedConfigurationNode)?.setComment("What should be channel toggle command name be (without slash)?")
+                    (this as? CommentedConfigurationNode)?.setComment("What should be channel toggle command name be (without slash)? Must not be empty or contain spaces")
 
                     value = toggleCommandName
                 }
 
                 node.getNode("command-aliases").run {
-                    (this as? CommentedConfigurationNode)?.setComment("What should be channel command aliases be (without slashes)?")
+                    (this as? CommentedConfigurationNode)?.setComment("What should be channel command aliases be (without slashes)? Commands names must not be empty or contain spaces, however aliases can be omitted.")
 
                     value = commandAliases
                 }
 
                 node.getNode("toggle-command-aliases").run {
-                    (this as? CommentedConfigurationNode)?.setComment("What should be channel toggle command aliases be (without slashes)?")
+                    (this as? CommentedConfigurationNode)?.setComment("What should be channel toggle command aliases be (without slashes)? Commands names must not be empty or contain spaces, however aliases can be omitted.")
 
                     value = toggleCommandAliases
                 }
 
                 node.getNode("format").run {
-                    (this as? CommentedConfigurationNode)?.setComment("Format how channel chat message should look like.")
+                    (this as? CommentedConfigurationNode)?.setComment("Format how channel chat message should look like. Should not be empty (well, what's the point of this plugin then?)")
 
                     value = messageFormat
                 }
