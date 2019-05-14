@@ -31,13 +31,17 @@ import eu.mikroskeem.adminchatter.bungee.commands.AdminchatterCommand
 import eu.mikroskeem.adminchatter.bungee.listeners.ChannelListener
 import eu.mikroskeem.adminchatter.bungee.listeners.ChatListener
 import eu.mikroskeem.adminchatter.common.ConfigurationLoader
+import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
 import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
+import eu.mikroskeem.adminchatter.common.utils.passMessage
+import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.plugin.Command
 import net.md_5.bungee.api.plugin.Plugin
 import org.bstats.bungeecord.MetricsLite
@@ -90,6 +94,14 @@ class AdminchatterPlugin: Plugin() {
         if(registeredCommands.isNotEmpty())
             registeredCommands.forEach(eu.mikroskeem.adminchatter.bungee.proxy.pluginManager::unregisterCommand)
 
+        // Store player toggled channels
+        val playerToggledChannels = HashMap<CommandSender, ChannelCommandInfo>()
+        proxy.players.map { BungeePlatformSender(it) }
+                .filter { it.currentChannel != null }
+                .forEach {
+            playerToggledChannels[it.base as CommandSender] = it.currentChannel!!
+        }
+
         // Register new channels and commands
         config.channels.forEach { channel ->
             if(!channel.isValid()) {
@@ -105,6 +117,18 @@ class AdminchatterPlugin: Plugin() {
             // Register commands
             registeredCommands.add(registerCommand(AdminchatCommand(channel)))
             registeredCommands.add(registerCommand(AdminchatToggleCommand(channel)))
+        }
+
+        // Populate toggle channel list again for players
+        playerToggledChannels.forEach { _sender, (channelName, prettyChannelName) ->
+            val sender = BungeePlatformSender(_sender)
+            val channel = channelsByName[channelName] ?: run {
+                sender.passMessage(config.messages.toggledChannelDoesNotExistAnymore.replace("{pretty_channel_name}", prettyChannelName), null)
+                sender.currentChannel = null
+                return@forEach
+            }
+
+            adminchatTogglePlayers[sender.base] = channel
         }
     }
 }

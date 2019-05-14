@@ -28,6 +28,7 @@ package eu.mikroskeem.adminchatter.bungee.listeners
 import com.google.common.eventbus.Subscribe
 import eu.mikroskeem.adminchatter.bungee.plugin
 import eu.mikroskeem.adminchatter.bungee.proxy
+import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.events.ChannelToggleEvent
 import eu.mikroskeem.adminchatter.common.platform.config
@@ -52,11 +53,11 @@ class ChannelListener {
 
         channelNotifyTasks.remove(player)?.cancel()
         if(event.toChannel != null) {
-            channelNotifyTasks[player] = ChannelNotifierTask(player, event.toChannel!!)
+            channelNotifyTasks[player] = ChannelNotifierTask(player, event.toChannel!!.channelName)
         }
     }
 
-    class ChannelNotifierTask(player: ProxiedPlayer, private val channel: ChannelCommandInfo): Runnable {
+    class ChannelNotifierTask(player: ProxiedPlayer, private val channelName: String): Runnable {
         private val playerUuid: UUID
         internal val task: ScheduledTask
 
@@ -69,6 +70,11 @@ class ChannelListener {
 
         override fun run() {
             val player = proxy.getPlayer(playerUuid) ?: run {
+                cancel()
+                return
+            }
+
+            val channel = channelsByName[channelName] ?: run {
                 cancel()
                 return
             }

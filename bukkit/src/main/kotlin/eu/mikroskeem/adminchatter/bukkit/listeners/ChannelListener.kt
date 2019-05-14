@@ -27,6 +27,7 @@ package eu.mikroskeem.adminchatter.bukkit.listeners
 
 import com.google.common.eventbus.Subscribe
 import eu.mikroskeem.adminchatter.bukkit.plugin
+import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.events.ChannelToggleEvent
 import eu.mikroskeem.adminchatter.common.platform.config
@@ -49,17 +50,22 @@ class ChannelListener {
 
         channelNotifyTasks.remove(player)?.cancel()
         if(event.toChannel != null) {
-            channelNotifyTasks[player] = ChannelNotifierTask(player, event.toChannel!!)
+            channelNotifyTasks[player] = ChannelNotifierTask(player, event.toChannel!!.channelName)
         }
     }
 
-    class ChannelNotifierTask(private val player: Player, private val channel: ChannelCommandInfo): BukkitRunnable() {
+    class ChannelNotifierTask(private val player: Player, private val channelName: String): BukkitRunnable() {
         init {
             runTaskTimerAsynchronously(plugin, 0L, 2 * 20L) // Actionbar starts fading after 2 seconds
         }
 
         override fun run() {
             if(!player.isOnline) {
+                cancel()
+                return
+            }
+
+            val channel = channelsByName[channelName] ?: run {
                 cancel()
                 return
             }

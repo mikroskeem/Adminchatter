@@ -31,15 +31,19 @@ import eu.mikroskeem.adminchatter.bukkit.commands.AdminchatterToggleCommand
 import eu.mikroskeem.adminchatter.bukkit.listeners.ChannelListener
 import eu.mikroskeem.adminchatter.bukkit.listeners.ChatListener
 import eu.mikroskeem.adminchatter.common.ConfigurationLoader
+import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
 import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
 import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
+import eu.mikroskeem.adminchatter.common.utils.passMessage
 import org.bstats.bukkit.MetricsLite
 import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.LinkedList
@@ -94,6 +98,14 @@ class AdminchatterPlugin: JavaPlugin() {
         channelsByChatPrefix.clear()
         registeredCommands.forEach { it.unregister(server.commandMap) }
 
+        // Store player toggled channels
+        val playerToggledChannels = HashMap<CommandSender, ChannelCommandInfo>()
+        server.onlinePlayers.map { BukkitPlatformSender(it) }
+                .filter { it.currentChannel != null }
+                .forEach {
+            playerToggledChannels[it.base as CommandSender] = it.currentChannel!!
+        }
+
         // Register new channels and commands
         eu.mikroskeem.adminchatter.common.platform.config.channels.forEach { channel ->
             if(!channel.isValid()) {
@@ -111,6 +123,18 @@ class AdminchatterPlugin: JavaPlugin() {
             val toggleCommand = AdminchatterToggleCommand(channel).apply { registeredCommands.add(this) }
             server.commandMap.register(name.toLowerCase(Locale.ENGLISH), chatCommand)
             server.commandMap.register(name.toLowerCase(Locale.ENGLISH), toggleCommand)
+        }
+
+        // Populate toggle channel list again for players
+        playerToggledChannels.forEach { _sender, (channelName, prettyChannelName) ->
+            val sender = BukkitPlatformSender(_sender)
+            val channel = channelsByName[channelName] ?: run {
+                sender.passMessage(currentPlatform.config.messages.toggledChannelDoesNotExistAnymore.replace("{pretty_channel_name}", prettyChannelName), null)
+                sender.currentChannel = null
+                return@forEach
+            }
+
+            adminchatTogglePlayers[sender.base] = channel
         }
 
         // Send updated commands list to online players

@@ -27,12 +27,13 @@ package eu.mikroskeem.adminchatter.common
 
 import com.google.common.eventbus.EventBus
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
+import java.util.Collections
 import java.util.WeakHashMap
 
 /**
  * @author Mark Vainomaa
  */
 val eventBus = EventBus()
-val channelsByName = HashMap<String, ChannelCommandInfo>()
-val channelsByChatPrefix = HashMap<String, ChannelCommandInfo>()
-val adminchatTogglePlayers = WeakHashMap<Any, ChannelCommandInfo>()
+val channelsByName = Collections.synchronizedMap(HashMap<String, ChannelCommandInfo>())
+val channelsByChatPrefix = Collections.synchronizedMap(HashMap<String, ChannelCommandInfo>())
+val adminchatTogglePlayers = Collections.synchronizedMap(WeakHashMap<Any, ChannelCommandInfo>())
