@@ -126,10 +126,11 @@ class AdminchatterPlugin: JavaPlugin() {
         }
 
         // Populate toggle channel list again for players
-        playerToggledChannels.forEach { _sender, (channelName, prettyChannelName) ->
+        playerToggledChannels.forEach { _sender, oldChannel ->
             val sender = BukkitPlatformSender(_sender)
-            val channel = channelsByName[channelName] ?: run {
-                sender.passMessage(currentPlatform.config.messages.toggledChannelDoesNotExistAnymore.replace("{pretty_channel_name}", prettyChannelName), null)
+            val channel = channelsByName[oldChannel.channelName] ?: run {
+                sender.passMessage(currentPlatform.config.messages.toggledChannelDoesNotExistAnymore, oldChannel)
+                sender.passMessage(currentPlatform.config.messages.toggledOff, oldChannel)
                 sender.currentChannel = null
                 return@forEach
             }
