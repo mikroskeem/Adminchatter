@@ -31,11 +31,13 @@ import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
+import eu.mikroskeem.adminchatter.common.utils.injectLinks
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import eu.mikroskeem.adminchatter.common.utils.replacePlaceholders
 import net.kyori.text.TextComponent
 import net.kyori.text.event.ClickEvent
 import net.kyori.text.event.HoverEvent
+import net.kyori.text.format.Style
 import net.kyori.text.serializer.legacy.LegacyComponentSerializer
 
 /**
@@ -75,16 +77,13 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     ))
 
     // Replace url components hover text
-    config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.let { urlText ->
-        buildableComponent.applyDeep { component ->
-            val textComponent = component as? TextComponent.Builder ?: return@applyDeep
-            if(textComponent.build().clickEvent()?.action() == ClickEvent.Action.OPEN_URL) {
-                textComponent.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.INSTANCE.deserialize(urlText)))
-            }
-        }
+    val linkStyle = config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.run {
+        Style.builder()
+                .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.INSTANCE.deserialize(this)))
+                .build()
     }
 
-    val component = buildableComponent.build()
+    val component = buildableComponent.build().injectLinks(linkStyle)
 
     // Send message
     val sound: ByteArray? = info.soundEffect.takeIf { it.isNotEmpty() }?.toByteArray()
