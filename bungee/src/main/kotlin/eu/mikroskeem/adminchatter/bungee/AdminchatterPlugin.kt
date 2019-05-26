@@ -39,7 +39,6 @@ import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
-import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.plugin.Command
@@ -67,14 +66,6 @@ class AdminchatterPlugin: Plugin() {
                 AdminchatterConfig::class.java,
                 header = CONFIGURATION_FILE_HEADER
         )
-
-        try {
-            injectBetterUrlPattern()
-        } catch (e: Exception) {
-            logger.warning("Failed to inject improved URL regex into TextComponent class. URLs with " +
-                    "extremely short domain names may not work!")
-            e.printStackTrace()
-        }
 
         setupChannels()
         registerCommand(AdminchatterCommand::class)

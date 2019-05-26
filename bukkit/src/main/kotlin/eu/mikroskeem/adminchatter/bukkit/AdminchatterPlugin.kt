@@ -39,7 +39,6 @@ import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
-import eu.mikroskeem.adminchatter.common.utils.injectBetterUrlPattern
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import org.bstats.bukkit.MetricsLite
 import org.bukkit.command.Command
@@ -77,14 +76,6 @@ class AdminchatterPlugin: JavaPlugin() {
                 AdminchatterConfig::class.java,
                 header = CONFIGURATION_FILE_HEADER
         )
-
-        try {
-            injectBetterUrlPattern()
-        } catch (e: Exception) {
-            logger.warning("Failed to inject improved URL regex into TextComponent class. URLs with " +
-                    "extremely short domain names may not work!")
-            e.printStackTrace()
-        }
 
         registerListener<ChatListener>()
         registerCommand<AdminchatterCommand>("adminchatter")
