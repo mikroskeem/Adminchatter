@@ -70,12 +70,10 @@ val shadowJar by tasks.getting(ShadowJar::class) {
         relocate(it, "$targetPackage.$it")
     }
 
-    dependencies {
-        exclude("org/jetbrains/annotations/**")
-        exclude("org/intellij/lang/annotations/**")
-        exclude("org/checkerframework/**")
-        exclude("META-INF/maven/**")
-    }
+    exclude("org/jetbrains/annotations/**")
+    exclude("org/intellij/lang/annotations/**")
+    exclude("org/checkerframework/**")
+    exclude("META-INF/maven/**")
 }
 
 tasks["jar"].dependsOn(shadowJar)
