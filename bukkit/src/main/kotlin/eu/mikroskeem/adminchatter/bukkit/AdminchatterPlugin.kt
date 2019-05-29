@@ -65,7 +65,7 @@ class AdminchatterPlugin: JavaPlugin() {
             MetricsLite(this)
         })
 
-        if(server.spigot().spigotConfig.getBoolean("settings.bungeecord", false)) {
+        if(isBehindProxy()) {
             logger.info("BungeeCord mode - listening for sound notification messages")
             server.messenger.registerIncomingPluginChannel(this, PLUGIN_CHANNEL_SOUND, this::processMessage)
             return
@@ -140,5 +140,14 @@ class AdminchatterPlugin: JavaPlugin() {
             return
 
         player.playSound(String(data))
+    }
+
+    private fun isBehindProxy(): Boolean {
+        try {
+            if(server.spigot().paperConfig.getBoolean("settings.velocity-support.enabled", false))
+                return true
+        } catch (e: Throwable) {}
+
+        return server.spigot().config.getBoolean("settings.bungeecord", false)
     }
 }
