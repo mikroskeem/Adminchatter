@@ -2,12 +2,10 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.61"
     id("net.minecrell.licenser") version "0.4.1"
-    id("com.github.johnrengelman.shadow") version "5.0.0"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
-
-
 
 extra["paperApiVersion"] = "1.15.2-R0.1-SNAPSHOT"
 extra["waterfallApiVersion"] = "1.15-SNAPSHOT"
