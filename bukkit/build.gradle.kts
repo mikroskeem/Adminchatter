@@ -19,7 +19,7 @@ bukkit {
     main = "eu.mikroskeem.adminchatter.bukkit.AdminchatterPlugin"
     description = "An adminchat plugin"
     authors = listOf("mikroskeem")
-    apiVersion = "1.13"
+    apiVersion = "1.15"
 
     commands {
         create("adminchatter") {

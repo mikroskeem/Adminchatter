@@ -9,8 +9,8 @@ plugins {
 
 
 
-extra["paperApiVersion"] = "1.13.2-R0.1-SNAPSHOT"
-extra["waterfallApiVersion"] = "1.13-SNAPSHOT"
+extra["paperApiVersion"] = "1.15.2-R0.1-SNAPSHOT"
+extra["waterfallApiVersion"] = "1.15-SNAPSHOT"
 extra["configurateVersion"] = "3.7-SNAPSHOT"
 extra["bstatsVersion"] = "1.4"
 extra["kyoriTextVersion"] = "3.0.0"
