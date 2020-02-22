@@ -31,7 +31,7 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "net.minecrell.licenser")
 
-    val compileKotlin by tasks.getting(KotlinCompile::class) {
+    tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
         }
