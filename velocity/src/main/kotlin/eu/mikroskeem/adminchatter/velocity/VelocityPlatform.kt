@@ -64,5 +64,5 @@ class VelocityPlatformSender(val sender: CommandSource): PlatformSender {
 class VelocityChatEvent(private val event: PlayerChatEvent): PlatformEvent {
     override var isCancelled: Boolean
         get() = event.result.isAllowed
-        set(value) { event.result = if(value) PlayerChatEvent.ChatResult.allowed() else PlayerChatEvent.ChatResult.denied() }
+        set(value) { event.result = if(value) PlayerChatEvent.ChatResult.denied() else PlayerChatEvent.ChatResult.allowed() }
 }
