@@ -58,7 +58,18 @@ class VelocityPlatformSender(val sender: CommandSource): PlatformSender {
     override fun hasPermission(node: String): Boolean = sender.hasPermission(node)
     override val isConsole: Boolean get() = sender === plugin.server.consoleCommandSource
     override val serverName: String get() = (sender as? Player)?.currentServer?.orElse(null)?.serverInfo?.name ?: ""
-    override fun playSound(soundData: ByteArray) { (sender as? Player)?.currentServer?.orElse(null)?.sendPluginMessage(channelIdentifier, soundData) }
+    override fun playSound(soundData: ByteArray) {
+        val currentServer = (sender as? Player)?.currentServer?.orElse(null) ?: return
+        var player: Player = sender
+        for (i in 0..3) {
+            try {
+                if (player.currentServer.orElse(null)?.sendPluginMessage(channelIdentifier, soundData) == true) {
+                    return
+                }
+            } catch (e: Exception) {}
+            player = currentServer.server.playersConnected.randomOrNull() ?: continue
+        }
+    }
 }
 
 class VelocityChatEvent(private val event: PlayerChatEvent): PlatformEvent {
