@@ -7,10 +7,7 @@ plugins {
 dependencies {
     implementation(project(":common"))
     implementation("org.bstats:bstats-bukkit-lite:${rootProject.extra["bstatsVersion"]}")
-    implementation("net.kyori:text-adapter-bukkit:${rootProject.extra["kyoriTextVersion"]}") {
-        exclude(module = "spigot-api")
-        exclude(module = "gson")
-    }
+    implementation("net.kyori:adventure-platform-bukkit:${rootProject.extra["kyoriVersion"]}")
     compileOnly("com.destroystokyo.paper:paper-api:${rootProject.extra["paperApiVersion"]}")
 }
 
@@ -19,7 +16,7 @@ bukkit {
     main = "eu.mikroskeem.adminchatter.bukkit.AdminchatterPlugin"
     description = "An adminchat plugin"
     authors = listOf("mikroskeem")
-    apiVersion = "1.15"
+    apiVersion = "1.16"
 
     commands {
         create("adminchatter") {

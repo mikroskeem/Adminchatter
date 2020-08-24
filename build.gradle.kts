@@ -13,7 +13,7 @@ extra["waterfallApiVersion"] = "1.16-R0.4-SNAPSHOT"
 extra["velocityApiVersion"] = "1.1.0-SNAPSHOT"
 extra["configurateVersion"] = "3.7-SNAPSHOT"
 extra["bstatsVersion"] = "1.4"
-extra["kyoriTextVersion"] = "3.0.0"
+extra["kyoriVersion"] = "4.0.0-SNAPSHOT"
 
 allprojects {
     group = "eu.mikroskeem"
@@ -37,13 +37,14 @@ subprojects {
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
+            languageVersion = "1.4"
         }
     }
 
     dependencies {
         implementation(kotlin("stdlib-jdk8"))
-        implementation("net.kyori:text-api:${rootProject.extra["kyoriTextVersion"]}")
-        implementation("net.kyori:text-serializer-legacy:${rootProject.extra["kyoriTextVersion"]}")
+        implementation("net.kyori:adventure-api:${rootProject.extra["kyoriVersion"]}")
+        implementation("net.kyori:adventure-text-serializer-legacy:${rootProject.extra["kyoriVersion"]}")
     }
 
     license {
@@ -65,7 +66,7 @@ val shadowJar by tasks.getting(ShadowJar::class) {
             "com.typesafe.config",
             "ninja.leaping.configurate",
             "org.bstats",
-            "net.kyori.text"
+            "net.kyori"
     )
     val targetPackage = "eu.mikroskeem.adminchatter.lib"
 
@@ -111,7 +112,7 @@ val shadowJarVelocity by tasks.creating(ShadowJar::class) {
     exclude("bungee.yml")
 
     // Provided by Velocity
-    exclude("net/kyori/text/**")
+    exclude("net/kyori/**")
 }
 
 tasks["jar"].dependsOn(shadowJar, shadowJarVelocity)

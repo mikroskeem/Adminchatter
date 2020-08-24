@@ -34,7 +34,7 @@ import eu.mikroskeem.adminchatter.common.platform.Platform
 import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
-import net.kyori.text.Component
+import net.kyori.adventure.text.Component
 
 /**
  * @author Mark Vainomaa

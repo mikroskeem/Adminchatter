@@ -34,11 +34,10 @@ import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.injectLinks
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import eu.mikroskeem.adminchatter.common.utils.replacePlaceholders
-import net.kyori.text.TextComponent
-import net.kyori.text.event.ClickEvent
-import net.kyori.text.event.HoverEvent
-import net.kyori.text.format.Style
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.event.HoverEvent
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 
 /**
  * @author Mark Vainomaa
@@ -61,7 +60,7 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     // Build hover event
     info.messageHoverText.takeUnless { it.isEmpty() }?.run {
         val text = this.replacePlaceholders(senderName, message, serverName, info.channelName)
-        buildableComponent.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.INSTANCE.deserialize(text)))
+        buildableComponent.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.legacyAmpersand().deserialize(text)))
     }
 
     // Build command event
@@ -71,19 +70,16 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     }
 
     // Add remaining text
-    buildableComponent.append(LegacyComponentSerializer.INSTANCE.deserialize(
-            chatFormat.replacePlaceholders(senderName, message, serverName, info.channelName),
-            '§'
+    buildableComponent.append(LegacyComponentSerializer.legacySection().deserialize(
+            chatFormat.replacePlaceholders(senderName, message, serverName, info.channelName)
     ))
 
     // Replace url components hover text
-    val linkStyle = config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.run {
-        Style.builder()
-                .hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.INSTANCE.deserialize(this)))
-                .build()
+    val linkHover = config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.run {
+        HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.legacyAmpersand().deserialize(this))
     }
 
-    val component = buildableComponent.build().injectLinks(linkStyle)
+    val component = buildableComponent.build().injectLinks(linkHover)
 
     // Send message
     val sound: ByteArray? = info.soundEffect.takeIf { it.isNotEmpty() }?.toByteArray()

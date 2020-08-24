@@ -30,7 +30,7 @@ import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.eventBus
 import eu.mikroskeem.adminchatter.common.events.ChannelToggleEvent
-import net.kyori.text.Component
+import net.kyori.adventure.text.Component
 import kotlin.properties.Delegates
 
 /**

@@ -30,8 +30,8 @@ import eu.mikroskeem.adminchatter.common.platform.Platform
 import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
-import net.kyori.text.Component
-import net.kyori.text.adapter.bungeecord.TextAdapter
+import net.kyori.adventure.platform.bungeecord.BungeeAudiences
+import net.kyori.adventure.text.Component
 import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.ProxyServer
 import net.md_5.bungee.api.connection.ProxiedPlayer
@@ -50,11 +50,15 @@ class BungeePlatform(private val plugin: AdminchatterPlugin): Platform {
 class BungeePlatformSender(val sender: CommandSender): PlatformSender {
     override val base: Any get() = sender
     override val name: String get() = sender.name
-    override fun sendMessage(component: Component) = TextAdapter.sendComponent(sender, component)
+    override fun sendMessage(component: Component) = audiences.audience(sender).sendMessage(component)
     override fun hasPermission(node: String): Boolean = sender.hasPermission(node)
     override val isConsole: Boolean get() = sender === ProxyServer.getInstance().console
     override val serverName: String get() = (sender as? ProxiedPlayer)?.server?.info?.name ?: ""
     override fun playSound(soundData: ByteArray) { (sender as? ProxiedPlayer)?.server?.sendData(PLUGIN_CHANNEL_SOUND, soundData) }
+
+    companion object {
+        val audiences = BungeeAudiences.create(plugin)
+    }
 }
 
 class BungeeEvent(private val event: Cancellable): PlatformEvent {

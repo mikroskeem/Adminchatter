@@ -28,13 +28,11 @@ package eu.mikroskeem.adminchatter.velocity.listeners
 import com.google.common.eventbus.Subscribe
 import com.velocitypowered.api.proxy.Player
 import com.velocitypowered.api.scheduler.ScheduledTask
-import com.velocitypowered.api.util.MessagePosition
 import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.events.ChannelToggleEvent
 import eu.mikroskeem.adminchatter.common.platform.config
-import eu.mikroskeem.adminchatter.common.utils.colored
 import eu.mikroskeem.adminchatter.velocity.plugin
-import net.kyori.text.TextComponent
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import java.util.UUID
 import java.util.WeakHashMap
 import java.util.concurrent.TimeUnit
@@ -81,9 +79,8 @@ class ChannelListener {
 
             val message = (config.messages.currentlyInAChannel.takeIf { it.isNotEmpty() } ?: return)
                     .replace("{channel_name}", channel.prettyChannelName)
-                    .colored()
 
-            player.sendMessage(TextComponent.of(message), MessagePosition.ACTION_BAR)
+            player.sendActionBar(LegacyComponentSerializer.legacyAmpersand().deserialize(message))
         }
     }
 }

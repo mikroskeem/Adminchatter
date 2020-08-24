@@ -26,7 +26,6 @@
 package eu.mikroskeem.adminchatter.velocity
 
 import com.velocitypowered.api.command.Command
-import java.util.LinkedList
 
 /**
  * @author Mark Vainomaa
@@ -37,11 +36,11 @@ inline fun <reified T: Command> AdminchatterPlugin.registerCommand(name: String,
 }
 
 fun <T: Command> AdminchatterPlugin.registerCommand(command: T, name: String, aliases: List<String> = emptyList()): String {
-    val commandNames = LinkedList<String>()
+    val commandNames = ArrayList(aliases)
     commandNames.add(name)
-    commandNames.addAll(aliases)
 
-    server.commandManager.register(command, *commandNames.toTypedArray())
+    val meta = server.commandManager.metaBuilder(name).aliases(*commandNames.toTypedArray()).build()
+    server.commandManager.register(meta, command)
     return name
 }
 

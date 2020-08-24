@@ -28,11 +28,12 @@ package eu.mikroskeem.adminchatter.common.utils
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.platform.config
-import net.kyori.text.Component
-import net.kyori.text.TextComponent
-import net.kyori.text.event.ClickEvent
-import net.kyori.text.format.Style
-import net.kyori.text.serializer.legacy.LegacyComponentSerializer
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.event.ClickEvent
+import net.kyori.adventure.text.event.HoverEvent
+import net.kyori.adventure.text.format.Style
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import java.util.ArrayDeque
 import java.util.Queue
 import java.util.regex.Matcher
@@ -58,18 +59,18 @@ fun String.replacePlaceholders(playerName: String? = null,
 fun String.colored(): String = this.replace('&', '§') // TODO: less safe than ChatColor utility
 
 fun PlatformSender.passMessage(message: String, channel: ChannelCommandInfo? = null) {
-    sendMessage(LegacyComponentSerializer.INSTANCE.deserialize(message.replacePlaceholders(name, message, serverName, channel?.prettyChannelName)).injectLinks())
+    sendMessage(LegacyComponentSerializer.legacyAmpersand().deserialize(message.replacePlaceholders(name, message, serverName, channel?.prettyChannelName)).injectLinks())
 }
 
 val URL_PATTERN = Pattern.compile("(?:(https?)://)?([-\\w_.]+\\.\\w{2,})(/\\S*)?")
 
 // https://github.com/KyoriPowered/text/pull/34/commits/ce66dbcd9b3da538b942d17d18b77f8fc002f66a
-fun TextComponent.injectLinks(linkStyle: Style? = null): TextComponent {
+fun TextComponent.injectLinks(linkHover: HoverEvent<*>? = null): TextComponent {
     val produced: MutableList<Component> = ArrayList()
     val queue: Queue<TextComponent> = ArrayDeque()
     queue.add(this)
 
-    while(!queue.isEmpty()) {
+    while (!queue.isEmpty()) {
         val current: TextComponent  = queue.remove()
         val content: String = current.content()
         val matcher: Matcher = URL_PATTERN.matcher(content)
@@ -88,8 +89,8 @@ fun TextComponent.injectLinks(linkStyle: Style? = null): TextComponent {
 
                 val style = Style.builder()
                         .clickEvent(ClickEvent.openUrl(matched))
-                        .hoverEvent(linkStyle?.hoverEvent())
-                        .color(linkStyle?.color() ?: withoutChildren.color())
+                        .hoverEvent(linkHover)
+                        .color((linkHover?.value() as? TextComponent)?.color() ?: withoutChildren.color())
                         .build()
 
                 val link = withoutChildren
@@ -99,7 +100,7 @@ fun TextComponent.injectLinks(linkStyle: Style? = null): TextComponent {
                 lastEnd = end
             } while(matcher.find())
 
-            if(content.length - lastEnd > 0)
+            if (content.length - lastEnd > 0)
                 produced.add(withoutChildren.content(content.substring(lastEnd)))
         } else {
             // children are handled separately

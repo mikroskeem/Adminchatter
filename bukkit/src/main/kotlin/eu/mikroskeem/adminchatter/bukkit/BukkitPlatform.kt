@@ -29,9 +29,8 @@ import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.platform.Platform
 import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
-import net.kyori.text.Component
-import net.kyori.text.adapter.bukkit.TextAdapter
-import net.md_5.bungee.api.chat.BaseComponent
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import net.kyori.adventure.text.Component
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.event.Cancellable
@@ -49,10 +48,14 @@ class BukkitPlatform(private val plugin: AdminchatterPlugin): Platform {
 class BukkitPlatformSender(val sender: CommandSender): PlatformSender {
     override val base: Any get() = sender
     override val name: String get() = sender.name
-    override fun sendMessage(component: Component) = TextAdapter.sendComponent(sender, component)
+    override fun sendMessage(component: Component) = audiences.audience(sender).sendMessage(component)
     override fun hasPermission(node: String): Boolean = sender.hasPermission(node)
     override val isConsole: Boolean get() = sender === sender.server.consoleSender
     override fun playSound(soundData: ByteArray) { (sender as? Player)?.playSound(String(soundData)) }
+
+    companion object {
+        val audiences = BukkitAudiences.create(plugin)
+    }
 }
 
 class BukkitEvent(private val event: Cancellable): PlatformEvent {
