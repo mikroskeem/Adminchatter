@@ -17,7 +17,7 @@ extra["kyoriTextVersion"] = "3.0.0"
 
 allprojects {
     group = "eu.mikroskeem"
-    version = "0.0.12"
+    version = "0.0.13-SNAPSHOT"
 
     repositories {
         mavenLocal()
