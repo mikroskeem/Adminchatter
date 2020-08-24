@@ -2,15 +2,15 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.61"
-    kotlin("kapt") version "1.3.61" apply false
+    kotlin("jvm") version "1.4.0"
+    kotlin("kapt") version "1.4.0" apply false
     id("net.minecrell.licenser") version "0.4.1"
-    id("com.github.johnrengelman.shadow") version "5.2.0"
+    id("com.github.johnrengelman.shadow") version "6.0.0"
 }
 
-extra["paperApiVersion"] = "1.15.2-R0.1-SNAPSHOT"
-extra["waterfallApiVersion"] = "1.15-SNAPSHOT"
-extra["velocityApiVersion"] = "1.0.0-SNAPSHOT"
+extra["paperApiVersion"] = "1.16.1-R0.1-SNAPSHOT"
+extra["waterfallApiVersion"] = "1.16-R0.4-SNAPSHOT"
+extra["velocityApiVersion"] = "1.1.0-SNAPSHOT"
 extra["configurateVersion"] = "3.7-SNAPSHOT"
 extra["bstatsVersion"] = "1.4"
 extra["kyoriTextVersion"] = "3.0.0"
