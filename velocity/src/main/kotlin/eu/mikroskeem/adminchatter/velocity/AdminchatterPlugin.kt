@@ -32,6 +32,8 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.plugin.annotation.DataDirectory
 import com.velocitypowered.api.proxy.ProxyServer
+import com.velocitypowered.api.proxy.messages.ChannelIdentifier
+import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier
 import eu.mikroskeem.adminchatter.common.ConfigurationLoader
 import eu.mikroskeem.adminchatter.common.adminchatTogglePlayers
 import eu.mikroskeem.adminchatter.common.channelsByChatPrefix
@@ -41,6 +43,7 @@ import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
+import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_PROXY
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import eu.mikroskeem.adminchatter.velocity.commands.AdminchatCommand
 import eu.mikroskeem.adminchatter.velocity.commands.AdminchatToggleCommand
@@ -86,6 +89,9 @@ class AdminchatterPlugin {
         registerCommand<AdminchatterCommand>("adminchatter")
         registerListener<ChatListener>()
         currentPlatform.registerInternalListener(ChannelListener())
+        PLUGIN_CHANNEL_PROXY.split(":", limit = 2).let { (namespace, name) ->
+            server.channelRegistrar.register(MinecraftChannelIdentifier.create(namespace, name))
+        }
     }
 
     internal fun setupChannels() {

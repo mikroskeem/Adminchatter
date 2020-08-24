@@ -52,7 +52,7 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
 
     val chatFormat = info.messageFormat.takeUnless { it.isEmpty() } ?: return // User did not set chat format, don't process anything
     val senderName = if(isConsole) (config.consoleName.takeUnless { it.isEmpty() } ?: name) else name
-    val serverName = if(currentPlatform.isBungee) serverName else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
+    val serverName = if(currentPlatform.isProxy) serverName else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
 
     // Start building chat component
     val buildableComponent = TextComponent.builder("")

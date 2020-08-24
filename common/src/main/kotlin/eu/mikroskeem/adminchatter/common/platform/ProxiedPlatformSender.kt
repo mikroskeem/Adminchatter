@@ -23,15 +23,17 @@
  * THE SOFTWARE.
  */
 
-package eu.mikroskeem.adminchatter.common.utils
+package eu.mikroskeem.adminchatter.common.platform
 
-/**
- * @author Mark Vainomaa
- */
-// Permission nodes
-const val BASE_CHAT_PERMISSION = "adminchatter.chat."
-const val ADMINCHATTER_COMMAND_PERMISSION = "adminchatter.reload"
+import net.kyori.adventure.text.Component
 
-// Plugin channel
-const val PLUGIN_CHANNEL_SOUND = "adminchatter:sound"
-const val PLUGIN_CHANNEL_PROXY = "adminchatter:proxied_chat"
+class ProxiedPlatformSender(
+        override val name: String,
+        override val isConsole: Boolean,
+        override val serverName: String,
+): PlatformSender {
+    override val base: Any get() = this
+    override fun sendMessage(component: Component) {}
+    override fun hasPermission(node: String): Boolean = true
+    override fun playSound(soundData: ByteArray) {}
+}

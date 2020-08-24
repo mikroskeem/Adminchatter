@@ -40,7 +40,7 @@ import org.bukkit.event.Cancellable
  */
 class BukkitPlatform(private val plugin: AdminchatterPlugin): Platform {
     override val onlinePlayers: Collection<PlatformSender> get() = plugin.server.onlinePlayers.map { BukkitPlatformSender(it) }
-    override val isBungee: Boolean get() = false
+    override val isProxy: Boolean get() = false
     override val consoleSender: PlatformSender get() = BukkitPlatformSender(plugin.server.consoleSender)
     override val config: AdminchatterConfig get() = plugin.configLoader.configuration
 }

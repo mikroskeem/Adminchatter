@@ -38,6 +38,7 @@ import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
+import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_PROXY
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import org.bstats.bukkit.MetricsLite
@@ -65,22 +66,23 @@ class AdminchatterPlugin: JavaPlugin() {
             MetricsLite(this)
         })
 
-        if(isBehindProxy()) {
-            logger.info("BungeeCord mode - listening for sound notification messages")
-            server.messenger.registerIncomingPluginChannel(this, PLUGIN_CHANNEL_SOUND, this::processMessage)
-            return
-        }
-
         configLoader = ConfigurationLoader(
                 dataFolder.toPath().resolve("config.cfg"),
                 AdminchatterConfig::class.java,
                 header = CONFIGURATION_FILE_HEADER
         )
 
-        registerListener<ChatListener>()
         registerCommand<AdminchatterCommand>("adminchatter")
-        currentPlatform.registerInternalListener(ChannelListener())
         setupChannels()
+
+        if (isBehindProxy) {
+            logger.info("BungeeCord mode - listening for sound notification messages and proxying chat")
+            server.messenger.registerIncomingPluginChannel(this, PLUGIN_CHANNEL_SOUND, this::processMessage)
+            server.messenger.registerOutgoingPluginChannel(this, PLUGIN_CHANNEL_PROXY)
+        } else {
+            registerListener<ChatListener>()
+            currentPlatform.registerInternalListener(ChannelListener())
+        }
     }
 
     fun setupChannels() {
@@ -142,12 +144,13 @@ class AdminchatterPlugin: JavaPlugin() {
         player.playSound(String(data))
     }
 
-    private fun isBehindProxy(): Boolean {
+    val isBehindProxy: Boolean by lazy {
         try {
-            if(server.spigot().paperConfig.getBoolean("settings.velocity-support.enabled", false))
-                return true
+            if (server.spigot().paperConfig.getBoolean("settings.velocity-support.enabled", false)) {
+                return@lazy true
+            }
         } catch (e: Throwable) {}
 
-        return server.spigot().config.getBoolean("settings.bungeecord", false)
+        server.spigot().config.getBoolean("settings.bungeecord", false)
     }
 }

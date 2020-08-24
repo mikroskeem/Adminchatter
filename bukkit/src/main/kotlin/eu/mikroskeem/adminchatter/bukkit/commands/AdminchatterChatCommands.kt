@@ -26,11 +26,14 @@
 package eu.mikroskeem.adminchatter.bukkit.commands
 
 import eu.mikroskeem.adminchatter.bukkit.BukkitPlatformSender
+import eu.mikroskeem.adminchatter.bukkit.plugin
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.sendChannelChat
 import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
+import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_PROXY
 import eu.mikroskeem.adminchatter.common.utils.passMessage
+import eu.mikroskeem.adminchatter.common.utils.serializeProxyChat
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -45,16 +48,31 @@ class AdminchatterChatCommand(private val info: ChannelCommandInfo): Command(inf
     }
 
     override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
-        if(!testPermission(sender))
+        if (!testPermission(sender))
             return true
 
         val platformSender = BukkitPlatformSender(sender)
-        if(sender !is Player && !config.allowConsoleUsage) {
-            platformSender.passMessage(config.messages.channelChatIsOnlyForPlayers)
-            return true
-        }
+        if (plugin.isBehindProxy) {
+            val isConsole = sender !is Player
+            val messageSender = if (isConsole) {
+                plugin.server.onlinePlayers.firstOrNull()
+            } else {
+                sender as Player
+            } ?: run {
+                plugin.slF4JLogger.warn("Failed to send proxied chat - server has no online players!")
+                return true
+            }
 
-        platformSender.sendChannelChat(info, args.joinToString(separator = " "))
+            val serialized = serializeProxyChat(info, sender.name, isConsole, args.joinToString(separator = " "))
+            messageSender.sendPluginMessage(plugin, PLUGIN_CHANNEL_PROXY, serialized)
+        } else {
+            if (sender !is Player && !config.allowConsoleUsage) {
+                platformSender.passMessage(config.messages.channelChatIsOnlyForPlayers)
+                return true
+            }
+
+            platformSender.sendChannelChat(info, args.joinToString(separator = " "))
+        }
 
         return true
     }

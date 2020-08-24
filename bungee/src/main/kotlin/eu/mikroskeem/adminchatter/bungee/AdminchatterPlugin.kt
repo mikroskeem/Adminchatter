@@ -39,6 +39,7 @@ import eu.mikroskeem.adminchatter.common.config.CONFIGURATION_FILE_HEADER
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
 import eu.mikroskeem.adminchatter.common.platform.currentPlatform
+import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_PROXY
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import net.md_5.bungee.api.CommandSender
 import net.md_5.bungee.api.plugin.Command
@@ -72,7 +73,8 @@ class AdminchatterPlugin: Plugin() {
         registerListener(ChatListener::class)
         currentPlatform.registerInternalListener(ChannelListener())
 
-        eu.mikroskeem.adminchatter.bungee.proxy.scheduler.runAsync(this) {
+        proxy.registerChannel(PLUGIN_CHANNEL_PROXY)
+        proxy.scheduler.runAsync(this) {
             MetricsLite(this)
         }
     }

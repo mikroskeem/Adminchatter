@@ -41,7 +41,7 @@ val config: AdminchatterConfig get() = currentPlatform.config
 
 interface Platform {
     val onlinePlayers: Collection<PlatformSender>
-    val isBungee: Boolean
+    val isProxy: Boolean
     val consoleSender: PlatformSender
     val config: AdminchatterConfig
 

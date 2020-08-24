@@ -46,7 +46,7 @@ private val channelIdentifier = run {
 
 class VelocityPlatform(private val plugin: AdminchatterPlugin): Platform {
     override val onlinePlayers: Collection<PlatformSender> get() = plugin.server.allPlayers.map { VelocityPlatformSender(it) }
-    override val isBungee: Boolean get() = true
+    override val isProxy: Boolean get() = true
     override val consoleSender: PlatformSender get() = VelocityPlatformSender(plugin.server.consoleCommandSource)
     override val config: AdminchatterConfig get() = plugin.configLoader.configuration
 }

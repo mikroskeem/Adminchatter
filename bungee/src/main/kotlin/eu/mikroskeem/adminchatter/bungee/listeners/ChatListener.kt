@@ -27,9 +27,17 @@ package eu.mikroskeem.adminchatter.bungee.listeners
 
 import eu.mikroskeem.adminchatter.bungee.BungeeEvent
 import eu.mikroskeem.adminchatter.bungee.BungeePlatformSender
+import eu.mikroskeem.adminchatter.bungee.plugin
+import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.handleToggleChat
+import eu.mikroskeem.adminchatter.common.platform.ProxiedPlatformSender
+import eu.mikroskeem.adminchatter.common.sendChannelChat
+import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_PROXY
+import eu.mikroskeem.adminchatter.common.utils.deserializeProxyChat
 import net.md_5.bungee.api.connection.ProxiedPlayer
+import net.md_5.bungee.api.connection.Server
 import net.md_5.bungee.api.event.ChatEvent
+import net.md_5.bungee.api.event.PluginMessageEvent
 import net.md_5.bungee.api.plugin.Listener
 import net.md_5.bungee.event.EventHandler
 import net.md_5.bungee.event.EventPriority
@@ -48,5 +56,20 @@ class ChatListener: Listener {
             return
 
         handleToggleChat(BungeeEvent(event), player, event.message)
+    }
+
+    @EventHandler
+    fun on(event: PluginMessageEvent) {
+        val serverConnection = event.sender as? Server ?: return
+        if (event.tag != PLUGIN_CHANNEL_PROXY) {
+            return
+        }
+
+        val (channelName, sender, isConsole, message) = deserializeProxyChat(event.data)
+        val channel = channelsByName[channelName] ?: run {
+            plugin.slF4JLogger.warn("Received proxied chat for unknown channel '{}'", channelName)
+            return
+        }
+        ProxiedPlatformSender(sender, isConsole, serverConnection.info.name).sendChannelChat(channel, message)
     }
 }

@@ -25,13 +25,31 @@
 
 package eu.mikroskeem.adminchatter.common.utils
 
-/**
- * @author Mark Vainomaa
- */
-// Permission nodes
-const val BASE_CHAT_PERMISSION = "adminchatter.chat."
-const val ADMINCHATTER_COMMAND_PERMISSION = "adminchatter.reload"
+import com.google.common.io.ByteStreams
+import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 
-// Plugin channel
-const val PLUGIN_CHANNEL_SOUND = "adminchatter:sound"
-const val PLUGIN_CHANNEL_PROXY = "adminchatter:proxied_chat"
+fun serializeProxyChat(info: ChannelCommandInfo, senderName: String, isConsole: Boolean, message: String): ByteArray {
+    val out = ByteStreams.newDataOutput().apply {
+        writeUTF(info.channelName)
+        writeUTF(senderName)
+        writeBoolean(isConsole)
+        writeUTF(message)
+    }
+    return out.toByteArray()
+}
+
+data class ProxiedChat(
+        val channelName: String,
+        val senderName: String,
+        val isConsole: Boolean,
+        val message: String,
+)
+
+fun deserializeProxyChat(rawData: ByteArray): ProxiedChat {
+    val inp = ByteStreams.newDataInput(rawData)
+    val channel = inp.readUTF()
+    val sender = inp.readUTF()
+    val isConsole = inp.readBoolean()
+    val message = inp.readUTF()
+    return ProxiedChat(channel, sender, isConsole, message)
+}

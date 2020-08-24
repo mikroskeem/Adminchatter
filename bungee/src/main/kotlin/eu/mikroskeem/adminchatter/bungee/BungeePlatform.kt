@@ -42,7 +42,7 @@ import net.md_5.bungee.api.plugin.Cancellable
  */
 class BungeePlatform(private val plugin: AdminchatterPlugin): Platform {
     override val onlinePlayers: Collection<PlatformSender> get() = plugin.proxy.players.map { BungeePlatformSender(it) }
-    override val isBungee: Boolean get() = true
+    override val isProxy: Boolean get() = true
     override val consoleSender: PlatformSender get() = BungeePlatformSender(plugin.proxy.console)
     override val config: AdminchatterConfig get() = plugin.configLoader.configuration
 }

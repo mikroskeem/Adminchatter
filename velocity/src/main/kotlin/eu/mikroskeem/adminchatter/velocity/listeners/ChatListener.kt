@@ -26,10 +26,18 @@
 package eu.mikroskeem.adminchatter.velocity.listeners
 
 import com.velocitypowered.api.event.Subscribe
+import com.velocitypowered.api.event.connection.PluginMessageEvent
 import com.velocitypowered.api.event.player.PlayerChatEvent
+import com.velocitypowered.api.proxy.ServerConnection
+import eu.mikroskeem.adminchatter.common.channelsByName
 import eu.mikroskeem.adminchatter.common.handleToggleChat
+import eu.mikroskeem.adminchatter.common.platform.ProxiedPlatformSender
+import eu.mikroskeem.adminchatter.common.sendChannelChat
+import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_PROXY
+import eu.mikroskeem.adminchatter.common.utils.deserializeProxyChat
 import eu.mikroskeem.adminchatter.velocity.VelocityChatEvent
 import eu.mikroskeem.adminchatter.velocity.VelocityPlatformSender
+import eu.mikroskeem.adminchatter.velocity.plugin
 
 /**
  * @author Mark Vainomaa
@@ -44,5 +52,20 @@ class ChatListener {
             return
 
         handleToggleChat(VelocityChatEvent(event), player, event.message)
+    }
+
+    @Subscribe
+    fun on(event: PluginMessageEvent) {
+        val serverConnection = event.source as? ServerConnection ?: return
+        if (event.identifier.id != PLUGIN_CHANNEL_PROXY) {
+            return
+        }
+
+        val (channelName, sender, isConsole, message) = deserializeProxyChat(event.data)
+        val channel = channelsByName[channelName] ?: run {
+            plugin.logger.warn("Received proxied chat for unknown channel '{}'", channelName)
+            return
+        }
+        ProxiedPlatformSender(sender, isConsole, serverConnection.serverInfo.name).sendChannelChat(channel, message)
     }
 }
