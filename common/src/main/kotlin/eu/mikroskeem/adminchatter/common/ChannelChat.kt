@@ -34,9 +34,11 @@ import eu.mikroskeem.adminchatter.common.utils.BASE_CHAT_PERMISSION
 import eu.mikroskeem.adminchatter.common.utils.injectLinks
 import eu.mikroskeem.adminchatter.common.utils.passMessage
 import eu.mikroskeem.adminchatter.common.utils.replacePlaceholders
+import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
+import net.kyori.adventure.text.event.HoverEventSource
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 
 /**
@@ -59,8 +61,9 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
 
     // Build hover event
     info.messageHoverText.takeUnless { it.isEmpty() }?.run {
-        val text = this.replacePlaceholders(senderName, message, serverName, info.channelName)
-        buildableComponent.hoverEvent(HoverEvent.of(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.legacyAmpersand().deserialize(text)))
+        val text = LegacyComponentSerializer.legacyAmpersand().deserialize(this.replacePlaceholders(senderName, message, serverName, info.channelName))
+        val hover: HoverEventSource<Component> = HoverEvent.of(HoverEvent.Action.SHOW_TEXT, text)
+        buildableComponent.hoverEvent(hover)
     }
 
     // Build command event
