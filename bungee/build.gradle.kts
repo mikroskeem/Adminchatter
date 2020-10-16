@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(project(":common"))
     implementation("org.bstats:bstats-bungeecord-lite:${rootProject.extra["bstatsVersion"]}")
-    implementation("net.kyori:adventure-platform-bungeecord:${rootProject.extra["kyoriVersion"]}")
+    implementation("net.kyori:adventure-platform-bungeecord:${rootProject.extra["kyoriAdapterBungeecordVersion"]}")
     compileOnly("io.github.waterfallmc:waterfall-api:${rootProject.extra["waterfallApiVersion"]}")
 }
 

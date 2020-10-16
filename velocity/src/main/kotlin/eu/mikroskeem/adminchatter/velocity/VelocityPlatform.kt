@@ -34,6 +34,7 @@ import eu.mikroskeem.adminchatter.common.platform.Platform
 import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
 import eu.mikroskeem.adminchatter.common.utils.PLUGIN_CHANNEL_SOUND
+import net.kyori.adventure.identity.Identity
 import net.kyori.adventure.text.Component
 
 /**
@@ -54,7 +55,7 @@ class VelocityPlatform(private val plugin: AdminchatterPlugin): Platform {
 class VelocityPlatformSender(val sender: CommandSource): PlatformSender {
     override val base: Any get() = sender
     override val name: String get() = (sender as? Player)?.username ?: (if(isConsole) "CONSOLE" else "")
-    override fun sendMessage(component: Component) = sender.sendMessage(component)
+    override fun sendMessage(component: Component) = sender.sendMessage(Identity.nil(), component)
     override fun hasPermission(node: String): Boolean = sender.hasPermission(node)
     override val isConsole: Boolean get() = sender === plugin.server.consoleCommandSource
     override val serverName: String get() = (sender as? Player)?.currentServer?.orElse(null)?.serverInfo?.name ?: ""

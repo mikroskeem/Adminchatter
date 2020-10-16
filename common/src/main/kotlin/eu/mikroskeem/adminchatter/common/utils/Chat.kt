@@ -87,7 +87,7 @@ fun TextComponent.injectLinks(linkHover: HoverEvent<*>? = null): TextComponent {
                 if(prefix.isNotEmpty())
                     produced.add(withoutChildren.content(prefix))
 
-                val style = Style.builder()
+                val style = Style.style()
                         .clickEvent(ClickEvent.openUrl(matched))
                         .hoverEvent(linkHover)
                         .color((linkHover?.value() as? TextComponent)?.color() ?: withoutChildren.color())

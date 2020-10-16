@@ -69,17 +69,17 @@ data class ChannelCommandInfo(
 ) {
     fun isValid(): Boolean {
         // Channel name must not contain spaces
-        if(channelName.isEmpty() || channelName.contains(' ')) {
+        if(channelName.isEmpty || channelName.contains(' ')) {
             return false
         }
 
         // Command names must not contain spaces
-        if(commandName.isEmpty() || toggleCommandName.isEmpty() || commandName.contains(' ') || toggleCommandName.contains(' ')) {
+        if(commandName.isEmpty || toggleCommandName.isEmpty || commandName.contains(' ') || toggleCommandName.contains(' ')) {
             return false
         }
 
         // Ditto for aliases
-        if(commandAliases.any { it.isEmpty() || it.contains(' ') } || toggleCommandAliases.any { it.isEmpty() || it.contains(' ') }) {
+        if(commandAliases.any { it.isEmpty || it.contains(' ') } || toggleCommandAliases.any { it.isEmpty || it.contains(' ') }) {
             return false
         }
 

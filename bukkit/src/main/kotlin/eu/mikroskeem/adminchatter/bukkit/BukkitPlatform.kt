@@ -29,6 +29,7 @@ import eu.mikroskeem.adminchatter.common.config.AdminchatterConfig
 import eu.mikroskeem.adminchatter.common.platform.Platform
 import eu.mikroskeem.adminchatter.common.platform.PlatformEvent
 import eu.mikroskeem.adminchatter.common.platform.PlatformSender
+import net.kyori.adventure.identity.Identity
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.kyori.adventure.text.Component
 import org.bukkit.command.CommandSender
@@ -48,7 +49,7 @@ class BukkitPlatform(private val plugin: AdminchatterPlugin): Platform {
 class BukkitPlatformSender(val sender: CommandSender): PlatformSender {
     override val base: Any get() = sender
     override val name: String get() = sender.name
-    override fun sendMessage(component: Component) = audiences.audience(sender).sendMessage(component)
+    override fun sendMessage(component: Component) = audiences.sender(sender).sendMessage(Identity.nil(), component)
     override fun hasPermission(node: String): Boolean = sender.hasPermission(node)
     override val isConsole: Boolean get() = sender === sender.server.consoleSender
     override fun playSound(soundData: ByteArray) { (sender as? Player)?.playSound(String(soundData)) }

@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation(project(":common"))
     implementation("org.bstats:bstats-bukkit-lite:${rootProject.extra["bstatsVersion"]}")
-    implementation("net.kyori:adventure-platform-bukkit:${rootProject.extra["kyoriVersion"]}")
+    implementation("net.kyori:adventure-platform-bukkit:${rootProject.extra["kyoriAdapterBukkitVersion"]}")
     compileOnly("com.destroystokyo.paper:paper-api:${rootProject.extra["paperApiVersion"]}")
 }
 

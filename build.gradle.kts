@@ -2,8 +2,8 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.0"
-    kotlin("kapt") version "1.4.0" apply false
+    kotlin("jvm") version "1.4.10"
+    kotlin("kapt") version "1.4.10" apply false
     id("net.minecrell.licenser") version "0.4.1"
     id("com.github.johnrengelman.shadow") version "6.0.0"
 }
@@ -13,15 +13,17 @@ extra["waterfallApiVersion"] = "1.16-R0.4-SNAPSHOT"
 extra["velocityApiVersion"] = "1.1.0-SNAPSHOT"
 extra["configurateVersion"] = "3.7-SNAPSHOT"
 extra["bstatsVersion"] = "1.4"
-extra["kyoriVersion"] = "4.0.0-SNAPSHOT"
+extra["kyoriVersion"] = "4.0.1"
+extra["kyoriAdapterBukkitVersion"] = "4.0.0-SNAPSHOT"
+extra["kyoriAdapterBungeecordVersion"] = "4.0.0-SNAPSHOT"
 
 allprojects {
     group = "eu.mikroskeem"
     version = "0.0.14-SNAPSHOT"
 
     repositories {
-        mavenLocal()
         mavenCentral()
+        jcenter()
 
         maven("https://papermc.io/repo/repository/maven-public/")
         maven("https://repo.codemc.org/repository/maven-public")
