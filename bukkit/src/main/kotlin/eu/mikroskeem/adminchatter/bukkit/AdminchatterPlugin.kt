@@ -1,7 +1,7 @@
 /*
  * This file is part of project Adminchatter, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2018-2020 Mark Vainomaa <mikroskeem@mikroskeem.eu>
+ * Copyright (c) 2018-2022 Mark Vainomaa <mikroskeem@mikroskeem.eu>
  * Copyright (c) Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -114,8 +114,8 @@ class AdminchatterPlugin: JavaPlugin() {
             // Register commands
             val chatCommand = AdminchatterChatCommand(channel).apply { registeredCommands.add(this) }
             val toggleCommand = AdminchatterToggleCommand(channel).apply { registeredCommands.add(this) }
-            server.commandMap.register(name.toLowerCase(Locale.ENGLISH), chatCommand)
-            server.commandMap.register(name.toLowerCase(Locale.ENGLISH), toggleCommand)
+            server.commandMap.register(name.lowercase(), chatCommand)
+            server.commandMap.register(name.lowercase(), toggleCommand)
         }
 
         // Populate toggle channel list again for players

@@ -1,7 +1,7 @@
 /*
  * This file is part of project Adminchatter, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2018-2020 Mark Vainomaa <mikroskeem@mikroskeem.eu>
+ * Copyright (c) 2018-2022 Mark Vainomaa <mikroskeem@mikroskeem.eu>
  * Copyright (c) Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,7 +47,7 @@ import java.util.Locale
 class ConfigurationLoader<T: Any>(
         configurationFile: Path,
         private val configClass: Class<T>,
-        private val baseNodeName: String = configClass.name.run { substring(lastIndexOf('.') + 1) }.toLowerCase(Locale.ENGLISH),
+        private val baseNodeName: String = configClass.name.run { substring(lastIndexOf('.') + 1) }.lowercase(),
         private val header: String? = null
 ) {
     /** This configuration loader's default options */

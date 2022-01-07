@@ -1,7 +1,7 @@
 /*
  * This file is part of project Adminchatter, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2018-2020 Mark Vainomaa <mikroskeem@mikroskeem.eu>
+ * Copyright (c) 2018-2022 Mark Vainomaa <mikroskeem@mikroskeem.eu>
  * Copyright (c) Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,6 +27,7 @@ package eu.mikroskeem.adminchatter.velocity.commands
 
 import com.velocitypowered.api.command.Command
 import com.velocitypowered.api.command.CommandSource
+import com.velocitypowered.api.command.SimpleCommand
 import com.velocitypowered.api.proxy.Player
 import eu.mikroskeem.adminchatter.common.config.ChannelCommandInfo
 import eu.mikroskeem.adminchatter.common.platform.config
@@ -40,9 +41,9 @@ import eu.mikroskeem.adminchatter.velocity.plugin
 /**
  * @author Mark Vainomaa
  */
-class AdminchatterCommand: Command {
-    override fun execute(_sender: CommandSource, args: Array<out String>) {
-        val sender = VelocityPlatformSender(_sender)
+class AdminchatterCommand: SimpleCommand {
+    override fun execute(invocation: SimpleCommand.Invocation) {
+        val sender = VelocityPlatformSender(invocation.source())
 
         plugin.configLoader.load()
         plugin.configLoader.save()
@@ -50,32 +51,32 @@ class AdminchatterCommand: Command {
         sender.passMessage(config.messages.pluginConfigurationReloaded)
     }
 
-    override fun hasPermission(source: CommandSource, args: Array<out String>) = source.hasPermission(ADMINCHATTER_COMMAND_PERMISSION)
+    override fun hasPermission(invocation: SimpleCommand.Invocation) = invocation.source().hasPermission(ADMINCHATTER_COMMAND_PERMISSION)
 }
 
-class AdminchatCommand(private val info: ChannelCommandInfo): Command {
+class AdminchatCommand(private val info: ChannelCommandInfo): SimpleCommand {
     private val permissionNode = BASE_CHAT_PERMISSION + info.channelName
 
-    override fun execute(_sender: CommandSource, args: Array<out String>) {
-        val sender = VelocityPlatformSender(_sender)
-        if(_sender !is Player && !config.allowConsoleUsage) {
+    override fun execute(invocation: SimpleCommand.Invocation) {
+        val sender = VelocityPlatformSender(invocation.source())
+        if(invocation.source() !is Player && !config.allowConsoleUsage) {
             sender.passMessage(config.messages.channelChatIsOnlyForPlayers)
             return
         }
 
-        sender.sendChannelChat(info, args.joinToString(separator = " "))
+        sender.sendChannelChat(info, invocation.arguments().joinToString(separator = " "))
     }
 
-    override fun hasPermission(source: CommandSource, args: Array<out String>) = source.hasPermission(permissionNode)
+    override fun hasPermission(invocation: SimpleCommand.Invocation) = invocation.source().hasPermission(permissionNode)
 }
 
-class AdminchatToggleCommand(private val info: ChannelCommandInfo): Command {
+class AdminchatToggleCommand(private val info: ChannelCommandInfo): SimpleCommand {
     private val permissionNode = BASE_CHAT_PERMISSION + info.channelName
 
-    override fun execute(_sender: CommandSource, args: Array<out String>) {
-        val sender = VelocityPlatformSender(_sender)
+    override fun execute(invocation: SimpleCommand.Invocation) {
+        val sender = VelocityPlatformSender(invocation.source())
 
-        if(_sender !is Player) {
+        if(invocation.source() !is Player) {
             sender.passMessage(config.messages.togglingIsOnlyForPlayers)
             return
         }
@@ -104,5 +105,5 @@ class AdminchatToggleCommand(private val info: ChannelCommandInfo): Command {
         }
     }
 
-    override fun hasPermission(source: CommandSource, args: Array<out String>) = source.hasPermission(permissionNode)
+    override fun hasPermission(invocation: SimpleCommand.Invocation) = invocation.source().hasPermission(permissionNode)
 }

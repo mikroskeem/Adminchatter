@@ -2,20 +2,20 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.10"
-    kotlin("kapt") version "1.4.10" apply false
-    id("net.minecrell.licenser") version "0.4.1"
-    id("com.github.johnrengelman.shadow") version "6.0.0"
+    kotlin("jvm") version "1.6.10"
+    kotlin("kapt") version "1.6.10" apply false
+    id("org.cadixdev.licenser") version "0.6.1"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 extra["paperApiVersion"] = "1.16.1-R0.1-SNAPSHOT"
 extra["waterfallApiVersion"] = "1.16-R0.4-SNAPSHOT"
-extra["velocityApiVersion"] = "1.1.0-SNAPSHOT"
+extra["velocityApiVersion"] = "3.0.1"
 extra["configurateVersion"] = "3.7-SNAPSHOT"
 extra["bstatsVersion"] = "1.4"
-extra["kyoriVersion"] = "4.0.1"
-extra["kyoriAdapterBukkitVersion"] = "4.0.0-SNAPSHOT"
-extra["kyoriAdapterBungeecordVersion"] = "4.0.0-SNAPSHOT"
+extra["kyoriVersion"] = "4.9.3"
+extra["kyoriAdapterBukkitVersion"] = "4.0.1"
+extra["kyoriAdapterBungeecordVersion"] = "4.0.1"
 
 allprojects {
     group = "eu.mikroskeem"
@@ -28,18 +28,19 @@ allprojects {
         maven("https://papermc.io/repo/repository/maven-public/")
         maven("https://repo.codemc.org/repository/maven-public")
         maven("https://repo.spongepowered.org/maven")
-        maven("https://repo.velocitypowered.com/snapshots/")
+        maven("https://nexus.velocitypowered.com/repository/maven-public/")
     }
 }
 
 subprojects {
+    apply(plugin = "java")
     apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "net.minecrell.licenser")
+    apply(plugin = "org.cadixdev.licenser")
 
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "1.8"
-            languageVersion = "1.4"
+            languageVersion = "1.6"
         }
     }
 
@@ -50,7 +51,7 @@ subprojects {
     }
 
     license {
-        header = rootProject.file("etc/HEADER")
+        header(rootProject.file("etc/HEADER"))
         filter.include("**/*.java")
         filter.include("**/*.kt")
     }

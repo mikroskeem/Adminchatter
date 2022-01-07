@@ -1,7 +1,7 @@
 /*
  * This file is part of project Adminchatter, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2018-2020 Mark Vainomaa <mikroskeem@mikroskeem.eu>
+ * Copyright (c) 2018-2022 Mark Vainomaa <mikroskeem@mikroskeem.eu>
  * Copyright (c) Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -69,17 +69,17 @@ data class ChannelCommandInfo(
 ) {
     fun isValid(): Boolean {
         // Channel name must not contain spaces
-        if(channelName.isEmpty || channelName.contains(' ')) {
+        if(channelName.isEmpty() || channelName.contains(' ')) {
             return false
         }
 
         // Command names must not contain spaces
-        if(commandName.isEmpty || toggleCommandName.isEmpty || commandName.contains(' ') || toggleCommandName.contains(' ')) {
+        if(commandName.isEmpty() || toggleCommandName.isEmpty() || commandName.contains(' ') || toggleCommandName.contains(' ')) {
             return false
         }
 
         // Ditto for aliases
-        if(commandAliases.any { it.isEmpty || it.contains(' ') } || toggleCommandAliases.any { it.isEmpty || it.contains(' ') }) {
+        if(commandAliases.any { it.isEmpty() || it.contains(' ') } || toggleCommandAliases.any { it.isEmpty() || it.contains(' ') }) {
             return false
         }
 
@@ -87,7 +87,7 @@ data class ChannelCommandInfo(
     }
 
     companion object ChannelCommandInfoSerializer: TypeSerializer<ChannelCommandInfo> {
-        private val STRING_TOKEN = object: TypeToken<String>() {}
+        private val STRING_TOKEN = TypeToken.of(String::class.java)
 
         private const val PREFIX_COMMENT = "If chat message starts with given prefix, then it will be " +
                 "passed to adminchat directly (however chat message sender needs to have `adminchatter.chat`" +

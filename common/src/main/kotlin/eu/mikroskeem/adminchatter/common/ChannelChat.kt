@@ -1,7 +1,7 @@
 /*
  * This file is part of project Adminchatter, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2018-2020 Mark Vainomaa <mikroskeem@mikroskeem.eu>
+ * Copyright (c) 2018-2022 Mark Vainomaa <mikroskeem@mikroskeem.eu>
  * Copyright (c) Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -46,27 +46,27 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 // Broadcasts admin chat message
 fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     // Do not process empty message
-    if(message.isEmpty) {
+    if(message.isEmpty()) {
         passMessage(config.messages.mustSupplyAMessage)
         return
     }
 
-    val chatFormat = info.messageFormat.takeUnless { it.isEmpty } ?: return // User did not set chat format, don't process anything
-    val senderName = if(isConsole) (config.consoleName.takeUnless { it.isEmpty } ?: name) else name
-    val serverName = if(currentPlatform.isProxy) serverName else (config.noneServerName.takeUnless { it.isEmpty } ?: "none")
+    val chatFormat = info.messageFormat.takeUnless { it.isEmpty() } ?: return // User did not set chat format, don't process anything
+    val senderName = if(isConsole) (config.consoleName.takeUnless { it.isEmpty() } ?: name) else name
+    val serverName = if(currentPlatform.isProxy) serverName else (config.noneServerName.takeUnless { it.isEmpty() } ?: "none")
 
     // Start building chat component
     val buildableComponent = Component.text()
 
     // Build hover event
-    info.messageHoverText.takeUnless { it.isEmpty }?.run {
+    info.messageHoverText.takeUnless { it.isEmpty() }?.run {
         val text = LegacyComponentSerializer.legacyAmpersand().deserialize(this.replacePlaceholders(senderName, message, serverName, info.channelName))
         val hover: HoverEventSource<Component> = HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, text)
         buildableComponent.hoverEvent(hover)
     }
 
     // Build command event
-    info.clickCommand.takeUnless { it.isEmpty }?.run {
+    info.clickCommand.takeUnless { it.isEmpty() }?.run {
         val command = this.replacePlaceholders(senderName, message, serverName, info.channelName)
         buildableComponent.clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, command))
     }
@@ -77,7 +77,7 @@ fun PlatformSender.sendChannelChat(info: ChannelCommandInfo, message: String) {
     ))
 
     // Replace url components hover text
-    val linkHover = config.messages.urlHoverText.takeUnless { it.isEmpty }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.run {
+    val linkHover = config.messages.urlHoverText.takeUnless { it.isEmpty() }?.replacePlaceholders(senderName, message, serverName, info.channelName)?.run {
         HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, LegacyComponentSerializer.legacyAmpersand().deserialize(this))
     }
 
